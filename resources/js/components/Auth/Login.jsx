@@ -1,9 +1,13 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -25,9 +29,9 @@ const Login = () => {
         throw new Error(data.message || 'Login failed');
       }
 
-      // On success, redirect or store token
-      console.log('Login successful', data);
-      // Example: window.location.href = '/dashboard';
+      // Save user info in context and redirect
+      login({ email }); // You can add more user info here if your API returns it
+      navigate('/dashboard');
     } catch (err) {
       setError(err.message);
     }
