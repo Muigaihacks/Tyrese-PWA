@@ -17,6 +17,7 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Filament\Facades\Filament;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -27,8 +28,14 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            ->brandName('SokoFresh')
+            ->brandLogo(asset('images/logo.jpg'))
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => Color::Hex('#F59E42'), // Orange
+                'sidebar' => Color::Hex('#1E40AF'), // Blue
+                'topbar' => Color::Hex('#F3F4F6'),  // Light Gray
+                'accent' => Color::Hex('#F59E42'),  // Orange (if used)
+                // Add more as needed
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')

@@ -1,3 +1,9 @@
+import InsuranceModule from '../components/InsuranceModule';
+
 export default function Insurance() {
-  return <div className="text-2xl font-bold">Casual Labourer Insurance Module (Placeholder)</div>;
+  return (
+    <div>
+      <InsuranceModule />
+    </div>
+  );
 } 
