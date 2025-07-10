@@ -21,12 +21,16 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use App\Models\Location;
 use Illuminate\Support\Facades\Log;
+use Filament\Tables\Actions\Action;
+use Filament\Forms\Components\Textarea;
 
 class InventoryResource extends Resource
 {
     protected static ?string $model = Inventory::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+
+    protected static ?string $navigationGroup = 'Inventory Management';
 
     public static function form(Form $form): Form
     {
@@ -51,7 +55,8 @@ class InventoryResource extends Resource
                     ->schema([
                         Select::make('location_id')
                             ->label('Location')
-                            ->options(Location::pluck('name', 'id'))
+                            ->options(Location::orderBy('name')->pluck('name', 'id'))
+                            ->searchable()
                             ->required(),
                         TextInput::make('quantity')
                             ->label('Quantity')
@@ -71,7 +76,7 @@ class InventoryResource extends Resource
         return $data;
     }
 
-    public static function table(Tables\Table $table): Tables\Table
+    public static function table(Table $table): Table
     {
         return $table
             ->columns([
@@ -99,32 +104,31 @@ class InventoryResource extends Resource
                         'warning' => 'Low Stock',
                         'danger' => 'Out of Stock',
                     ]),
+                \Filament\Tables\Columns\IconColumn::make('active')
+                    ->label('Active')
+                    ->boolean()
+                    ->getStateUsing(fn ($record) => $record->active),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('stock_level')
                     ->label('Stock Level')
                     ->options([
-                        'Normal' => 'Normal',
-                        'Critical' => 'Critical',
+                        'In Stock' => 'In Stock',
+                        'Low Stock' => 'Low Stock',
+                        'Out of Stock' => 'Out of Stock',
                     ]),
-                Tables\Filters\Filter::make('min_quantity')
-                    ->label('Min Quantity')
+                Tables\Filters\Filter::make('date_added')
+                    ->label('Date Added')
                     ->form([
-                        Forms\Components\TextInput::make('min')->numeric()->label('Minimum'),
+                        Forms\Components\DatePicker::make('date_from')->label('From'),
+                        Forms\Components\DatePicker::make('date_to')->label('To'),
                     ])
                     ->query(function ($query, array $data) {
-                        if ($data['min']) {
-                            $query->where('quantity', '>=', $data['min']);
+                        if (!empty($data['date_from'])) {
+                            $query->whereDate('date_added', '>=', $data['date_from']);
                         }
-                    }),
-                Tables\Filters\Filter::make('max_quantity')
-                    ->label('Max Quantity')
-                    ->form([
-                        Forms\Components\TextInput::make('max')->numeric()->label('Maximum'),
-                    ])
-                    ->query(function ($query, array $data) {
-                        if ($data['max']) {
-                            $query->where('quantity', '<=', $data['max']);
+                        if (!empty($data['date_to'])) {
+                            $query->whereDate('date_added', '<=', $data['date_to']);
                         }
                     }),
             ])
@@ -136,6 +140,30 @@ class InventoryResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
+            ])
+            ->headerActions([
+                Action::make('newLocation')
+                    ->label('New Location')
+                    ->icon('heroicon-o-plus')
+                    ->form([
+                        TextInput::make('name')
+                            ->label('Location Name')
+                            ->required()
+                            ->maxLength(255),
+                        Textarea::make('notes')
+                            ->label('Notes')
+                            ->maxLength(1000)
+                            ->rows(3),
+                    ])
+                    ->action(function (array $data): void {
+                        Location::create($data);
+                    })
+                    ->after(function () {
+                        \Filament\Notifications\Notification::make()
+                            ->success()
+                            ->title('Location created successfully!')
+                            ->send();
+                    }),
             ]);
     }
 

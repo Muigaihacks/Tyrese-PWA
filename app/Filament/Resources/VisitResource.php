@@ -19,11 +19,32 @@ class VisitResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
+    protected static ?string $navigationGroup = 'Map & Field Operations';
+
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                //
+                \Filament\Forms\Components\Select::make('unit_id')
+                    ->label('Leased Unit')
+                    ->relationship('leasedUnit', 'name')
+                    ->required(),
+                \Filament\Forms\Components\DatePicker::make('scheduled_for')
+                    ->label('Scheduled For')
+                    ->required(),
+                \Filament\Forms\Components\Select::make('status')
+                    ->label('Status')
+                    ->options([
+                        'scheduled' => 'Scheduled',
+                        'completed' => 'Completed',
+                        'cancelled' => 'Cancelled',
+                    ])
+                    ->required(),
+                \Filament\Forms\Components\Select::make('scheduled_by')
+                    ->label('Scheduled By')
+                    ->relationship('scheduler', 'name')
+                    ->required(),
+                \Filament\Forms\Components\Textarea::make('notes')->label('Notes')->rows(3),
             ]);
     }
 
@@ -31,18 +52,20 @@ class VisitResource extends Resource
     {
         return $table
             ->columns([
-                //
+                \Filament\Tables\Columns\TextColumn::make('leasedUnit.name')->label('Leased Unit')->searchable(),
+                \Filament\Tables\Columns\TextColumn::make('scheduled_for')->label('Scheduled For')->date(),
+                \Filament\Tables\Columns\TextColumn::make('status')->label('Status')->badge(),
+                \Filament\Tables\Columns\TextColumn::make('scheduler.name')->label('Scheduled By'),
+                \Filament\Tables\Columns\TextColumn::make('notes')->label('Notes')->limit(30),
+                \Filament\Tables\Columns\TextColumn::make('created_at')->label('Created')->dateTime()->sortable(),
             ])
-            ->filters([
-                //
-            ])
+            ->filters([])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                \Filament\Tables\Actions\EditAction::make(),
+                \Filament\Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                \Filament\Tables\Actions\DeleteBulkAction::make(),
             ]);
     }
 

@@ -14,4 +14,13 @@ class Insurance extends Model
         'cover_expiry',
         'active',
     ];
+
+    protected $casts = [
+        'cover_expiry' => 'date',
+    ];
+
+    public function getActiveAttribute()
+    {
+        return $this->cover_expiry && \Carbon\Carbon::parse($this->cover_expiry)->isFuture();
+    }
 }

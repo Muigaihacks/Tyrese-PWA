@@ -71,4 +71,9 @@ class MapResource extends Resource
     {
         return 'Map'; // or 'Storage', 'Map'
     }
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return false;
+    }
 }

@@ -9,4 +9,9 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateStorage extends CreateRecord
 {
     protected static string $resource = StorageResource::class;
+
+    public static function canCreateAnother(): bool
+    {
+        return false;
+    }
 }

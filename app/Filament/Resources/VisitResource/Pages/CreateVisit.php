@@ -9,4 +9,9 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateVisit extends CreateRecord
 {
     protected static string $resource = VisitResource::class;
+
+    public static function canCreateAnother(): bool
+    {
+        return false;
+    }
 }

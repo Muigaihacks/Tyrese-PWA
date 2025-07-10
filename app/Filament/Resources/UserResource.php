@@ -19,11 +19,26 @@ class UserResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
+    protected static ?string $navigationGroup = 'User Management';
+
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                //
+                \Filament\Forms\Components\TextInput::make('name')
+                    ->label('Name')
+                    ->required(),
+                \Filament\Forms\Components\TextInput::make('email')
+                    ->label('Email')
+                    ->email()
+                    ->required()
+                    ->unique(ignoreRecord: true),
+                \Filament\Forms\Components\TextInput::make('password')
+                    ->label('Password')
+                    ->password()
+                    ->dehydrateStateUsing(fn ($state) => !empty($state) ? \Hash::make($state) : null)
+                    ->required(fn ($livewire) => $livewire instanceof \Filament\Resources\Pages\CreateRecord)
+                    ->maxLength(255),
             ]);
     }
 
@@ -31,18 +46,19 @@ class UserResource extends Resource
     {
         return $table
             ->columns([
-                //
+                \Filament\Tables\Columns\TextColumn::make('name')->label('Name')->searchable(),
+                \Filament\Tables\Columns\TextColumn::make('email')->label('Email')->searchable(),
+                \Filament\Tables\Columns\TextColumn::make('created_at')->label('Created')->dateTime()->sortable(),
             ])
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                \Filament\Tables\Actions\EditAction::make(),
+                \Filament\Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                \Filament\Tables\Actions\DeleteBulkAction::make(),
             ]);
     }
 

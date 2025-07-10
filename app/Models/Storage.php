@@ -7,6 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 class Storage extends Model
 {
     protected $fillable = [
-        //list your fields here
+        'client_name',
+        'phone_number',
+        'product_name',
+        'quantity',
+        'date',
+        'fee',
     ];      
 }

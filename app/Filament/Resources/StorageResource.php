@@ -23,7 +23,12 @@ class StorageResource extends Resource
     {
         return $form
             ->schema([
-                //
+                \Filament\Forms\Components\TextInput::make('client_name')->label('Client Name')->required(),
+                \Filament\Forms\Components\TextInput::make('phone_number')->label('Phone Number')->required(),
+                \Filament\Forms\Components\TextInput::make('product_name')->label('Product Name')->required(),
+                \Filament\Forms\Components\TextInput::make('quantity')->label('Quantity')->numeric()->required(),
+                \Filament\Forms\Components\DatePicker::make('date')->label('Date')->required(),
+                \Filament\Forms\Components\TextInput::make('fee')->label('Fee')->numeric()->required(),
             ]);
     }
 
@@ -31,18 +36,21 @@ class StorageResource extends Resource
     {
         return $table
             ->columns([
-                //
+                \Filament\Tables\Columns\TextColumn::make('client_name')->label('Client Name')->searchable(),
+                \Filament\Tables\Columns\TextColumn::make('phone_number')->label('Phone Number'),
+                \Filament\Tables\Columns\TextColumn::make('product_name')->label('Product Name'),
+                \Filament\Tables\Columns\TextColumn::make('quantity')->label('Quantity'),
+                \Filament\Tables\Columns\TextColumn::make('date')->label('Date')->date(),
+                \Filament\Tables\Columns\TextColumn::make('fee')->label('Fee')->money('KES'),
             ])
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                // Optionally add EditAction here if you want editing
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                \Filament\Tables\Actions\DeleteBulkAction::make()->label('Clear Record'),
             ]);
     }
 

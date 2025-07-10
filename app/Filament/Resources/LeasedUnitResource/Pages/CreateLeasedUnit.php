@@ -9,4 +9,9 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateLeasedUnit extends CreateRecord
 {
     protected static string $resource = LeasedUnitResource::class;
+
+    public static function canCreateAnother(): bool
+    {
+        return false;
+    }
 }

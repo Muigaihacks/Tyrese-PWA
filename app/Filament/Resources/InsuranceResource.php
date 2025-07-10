@@ -22,11 +22,15 @@ class InsuranceResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    public static function form(Form $form): Form
+    public static function form(\Filament\Forms\Form $form): \Filament\Forms\Form
     {
         return $form
             ->schema([
-                //
+                \Filament\Forms\Components\TextInput::make('name')->label('Name')->required(),
+                \Filament\Forms\Components\TextInput::make('id_number')->label('ID Number')->required(),
+                \Filament\Forms\Components\TextInput::make('phone_number')->label('Phone Number')->required(),
+                \Filament\Forms\Components\FileUpload::make('insurance_copy')->label('Insurance Copy'),
+                \Filament\Forms\Components\DatePicker::make('cover_expiry')->label('Cover Expiry')->required(),
             ]);
     }
 
@@ -78,7 +82,8 @@ class InsuranceResource extends Resource
                     }),
             ])
             ->actions([
-                // No delete action, just toggle active/inactive
+                \Filament\Tables\Actions\EditAction::make(),
+                \Filament\Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

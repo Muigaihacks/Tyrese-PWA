@@ -13,6 +13,12 @@ return new class extends Migration
     {
         Schema::create('storages', function (Blueprint $table) {
             $table->id();
+            $table->string('client_name');
+            $table->string('phone_number');
+            $table->string('product_name');
+            $table->integer('quantity');
+            $table->date('date');
+            $table->decimal('fee', 8, 2);
             $table->timestamps();
         });
     }

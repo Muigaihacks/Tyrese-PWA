@@ -19,11 +19,19 @@ class LeasedUnitResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
+    protected static ?string $navigationGroup = 'Map & Field Operations';
+
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                //
+                \Filament\Forms\Components\TextInput::make('name')->label('Unit Name')->required(),
+                \Filament\Forms\Components\TextInput::make('address')->label('Address'),
+                \Filament\Forms\Components\TextInput::make('latitude')->label('Latitude')->required(),
+                \Filament\Forms\Components\TextInput::make('longitude')->label('Longitude')->required(),
+                \Filament\Forms\Components\TextInput::make('lessee_name')->label('Lessee Name'),
+                \Filament\Forms\Components\TextInput::make('lessee_contact')->label('Lessee Contact'),
+                \Filament\Forms\Components\Textarea::make('notes')->label('Notes')->rows(3),
             ]);
     }
 
@@ -31,18 +39,21 @@ class LeasedUnitResource extends Resource
     {
         return $table
             ->columns([
-                //
+                \Filament\Tables\Columns\TextColumn::make('name')->label('Unit Name')->searchable(),
+                \Filament\Tables\Columns\TextColumn::make('address')->label('Address')->limit(30),
+                \Filament\Tables\Columns\TextColumn::make('lessee_name')->label('Lessee')->searchable(),
+                \Filament\Tables\Columns\TextColumn::make('lessee_contact')->label('Contact'),
+                \Filament\Tables\Columns\TextColumn::make('latitude')->label('Lat'),
+                \Filament\Tables\Columns\TextColumn::make('longitude')->label('Lng'),
+                \Filament\Tables\Columns\TextColumn::make('created_at')->label('Created')->dateTime()->sortable(),
             ])
-            ->filters([
-                //
-            ])
+            ->filters([])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                \Filament\Tables\Actions\EditAction::make(),
+                \Filament\Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                \Filament\Tables\Actions\DeleteBulkAction::make(),
             ]);
     }
 
