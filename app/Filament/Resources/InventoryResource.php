@@ -20,6 +20,7 @@ use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use App\Models\Location;
+use Illuminate\Support\Facades\Log;
 
 class InventoryResource extends Resource
 {
@@ -32,9 +33,21 @@ class InventoryResource extends Resource
         return $form
             ->schema([
                 Forms\Components\TextInput::make('product')->label('Product'),
-                Forms\Components\DatePicker::make('date_added')->label('Date Added'),
+                Forms\Components\Select::make('condition')
+                    ->label('Condition')
+                    ->options([
+                        'New' => 'New',
+                        'Good' => 'Good',
+                        'Fair' => 'Fair',
+                        'Poor' => 'Poor',
+                    ])
+                    ->required(),
+                Forms\Components\DatePicker::make('date_added')
+                    ->label('Date Added')
+                    ->required()
+                    ->default(now()),
                 Repeater::make('inventoryLocations')
-                    ->relationship()
+                    ->relationship('inventoryLocations')
                     ->schema([
                         Select::make('location_id')
                             ->label('Location')
@@ -52,23 +65,40 @@ class InventoryResource extends Resource
             ]);
     }
 
+    public static function mutateFormDataBeforeCreate(array $data): array
+    {
+        Log::info('Inventory create data:', $data);
+        return $data;
+    }
+
     public static function table(Tables\Table $table): Tables\Table
     {
         return $table
             ->columns([
                 TextColumn::make('product')->label('Product'),
                 TextColumn::make('date_added')->label('Date Added'),
-                TextColumn::make('inventoryLocations')
+                TextColumn::make('locations_and_quantities')
                     ->label('Locations')
+                    ->getStateUsing(function ($record) {
+                        // $record is the Inventory model
+                        return $record->inventoryLocations;
+                    })
                     ->formatStateUsing(function ($state) {
-                        // $state is a collection of InventoryLocation
-                        return $state->map(function ($invLoc) {
-                            return $invLoc->location->name . ' (' . $invLoc->quantity . ')';
-                        })->join(', ');
+                        if (is_iterable($state)) {
+                            return collect($state)->map(function ($invLoc) {
+                                return $invLoc->location->name . ' (' . $invLoc->quantity . ')';
+                            })->join(', ');
+                        }
+                        return '';
                     }),
                 BadgeColumn::make('stock_level')
                     ->label('Stock Level')
-                    ->color(fn ($state) => $state === 'Critical' ? 'danger' : 'success'),
+                    ->getStateUsing(fn ($record) => $record->stock_level)
+                    ->colors([
+                        'success' => 'In Stock',
+                        'warning' => 'Low Stock',
+                        'danger' => 'Out of Stock',
+                    ]),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('stock_level')
@@ -112,7 +142,7 @@ class InventoryResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            \App\Filament\Resources\InventoryResource\RelationManagers\InventoryActionsRelationManager::class,
         ];
     }
 
