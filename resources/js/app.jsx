@@ -6,6 +6,7 @@ import Map from './pages/Map';
 import Insurance from './pages/Insurance';
 import ProtectedRoute from './components/ProtectedRoute';
 import Login from './components/Auth/Login.jsx';
+import ResetPassword from './components/Auth/ResetPassword';
 
 export default function App() {
   return (
@@ -13,6 +14,7 @@ export default function App() {
       <Routes>
         {/* Public route */}
         <Route path="/login" element={<Login />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
 
         {/* Protected routes */}
         <Route

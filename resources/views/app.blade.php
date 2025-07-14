@@ -1,13 +1,11 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Tyrese PWA</title>
+    <meta charset="UTF-8">
+    <title>My App</title>
     @vite(['resources/css/app.css', 'resources/js/main.jsx'])
 </head>
 <body>
     <div id="root"></div>
-    <script>console.log('Blade loaded');</script>
 </body>
 </html>

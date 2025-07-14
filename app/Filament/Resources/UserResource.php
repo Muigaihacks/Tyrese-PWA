@@ -12,6 +12,8 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Auth\Notifications\ResetPassword;
+use Illuminate\Support\Facades\Password;
 
 class UserResource extends Resource
 {
@@ -25,20 +27,17 @@ class UserResource extends Resource
     {
         return $form
             ->schema([
-                \Filament\Forms\Components\TextInput::make('name')
-                    ->label('Name')
-                    ->required(),
-                \Filament\Forms\Components\TextInput::make('email')
-                    ->label('Email')
-                    ->email()
+                \Filament\Forms\Components\TextInput::make('name')->label('Name')->required(),
+                \Filament\Forms\Components\TextInput::make('email')->label('Email')->email()->required()->unique(ignoreRecord: true),
+                \Filament\Forms\Components\Select::make('roles')
+                    ->label('Role')
+                    ->relationship('roles', 'name')
+                    ->preload()
                     ->required()
-                    ->unique(ignoreRecord: true),
-                \Filament\Forms\Components\TextInput::make('password')
-                    ->label('Password')
-                    ->password()
-                    ->dehydrateStateUsing(fn ($state) => !empty($state) ? \Hash::make($state) : null)
-                    ->required(fn ($livewire) => $livewire instanceof \Filament\Resources\Pages\CreateRecord)
-                    ->maxLength(255),
+                    ->multiple(false), // set to true if you want to allow multiple roles per user
+                \Filament\Forms\Components\Toggle::make('status')
+                    ->label('Active')
+                    ->default(true),
             ]);
     }
 
@@ -48,6 +47,16 @@ class UserResource extends Resource
             ->columns([
                 \Filament\Tables\Columns\TextColumn::make('name')->label('Name')->searchable(),
                 \Filament\Tables\Columns\TextColumn::make('email')->label('Email')->searchable(),
+                \Filament\Tables\Columns\BadgeColumn::make('roles.name')
+                    ->label('Role')
+                    ->colors([
+                        'primary' => 'admin',
+                        'success' => 'manager',
+                        'warning' => 'team_lead',
+                        'info' => 'site_manager',
+                        'secondary' => 'user',
+                    ]),
+                \Filament\Tables\Columns\IconColumn::make('status')->label('Active')->boolean(),
                 \Filament\Tables\Columns\TextColumn::make('created_at')->label('Created')->dateTime()->sortable(),
             ])
             ->filters([
