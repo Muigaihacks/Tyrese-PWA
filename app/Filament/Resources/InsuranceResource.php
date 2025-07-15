@@ -22,6 +22,23 @@ class InsuranceResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->hasRole('admin');
+    }
+    public static function canCreate(): bool
+    {
+        return auth()->user()?->hasRole('admin');
+    }
+    public static function canEdit($record): bool
+    {
+        return auth()->user()?->hasRole('admin');
+    }
+    public static function canDelete($record): bool
+    {
+        return auth()->user()?->hasRole('admin');
+    }
+
     public static function form(\Filament\Forms\Form $form): \Filament\Forms\Form
     {
         return $form
@@ -116,10 +133,5 @@ class InsuranceResource extends Resource
     public static function getLabel(): string
     {
         return 'Insurance';
-    }
-
-    public static function canCreate(): bool
-    {
-        return false;
     }
 }

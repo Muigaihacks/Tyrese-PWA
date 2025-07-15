@@ -13,7 +13,7 @@ class DatabaseSeeder extends Seeder
             LeasedUnitSeeder::class,
             VisitSeeder::class,
             InventoryActionSeeder::class,
-            // Add any other seeders you have
+            PermissionSeeder::class,
         ]);
     }
 }
