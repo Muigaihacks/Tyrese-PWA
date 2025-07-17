@@ -25,7 +25,15 @@ class VisitController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'scheduled_for' => 'required|date',
+            'scheduled_by' => 'required|string',
+            'location' => 'required|string',
+            // add other fields as needed
+        ]);
+
+        $visit = Visit::create($validated);
+        return response()->json($visit, 201);
     }
 
     /**
@@ -55,6 +63,31 @@ class VisitController extends Controller
     public function schedule(Request $request)
     {
         $this->authorize('schedule', \App\Models\Visit::class);
-        // ... your scheduling logic here ...
+        $validated = $request->validate([
+            'scheduled_for' => 'required|date',
+            'scheduled_by' => 'required|string',
+            'location' => 'required|string',
+            // add other fields as needed
+        ]);
+
+        $visit = Visit::create($validated);
+        return response()->json($visit, 201);
+    }
+
+    public function dropdownList(Request $request)
+    {
+        $visits = \App\Models\Visit::with('scheduler')
+            ->orderBy('scheduled_for')
+            ->get()
+            ->map(function ($visit) {
+                return [
+                    'id' => $visit->id,
+                    'location' => $visit->location,
+                    'scheduled_by' => $visit->scheduler ? $visit->scheduler->name : '',
+                    'notes' => $visit->notes,
+                ];
+            });
+
+        return response()->json($visits);
     }
 }

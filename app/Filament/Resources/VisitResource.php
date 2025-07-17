@@ -12,6 +12,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Forms\Components\TextInput;
 
 class VisitResource extends Resource
 {
@@ -46,6 +47,7 @@ class VisitResource extends Resource
                     ->label('Leased Unit')
                     ->relationship('leasedUnit', 'name')
                     ->required(),
+                TextInput::make('location')->label('Location')->required(),
                 \Filament\Forms\Components\DatePicker::make('scheduled_for')
                     ->label('Scheduled For')
                     ->required(),
@@ -70,6 +72,7 @@ class VisitResource extends Resource
         return $table
             ->columns([
                 \Filament\Tables\Columns\TextColumn::make('leasedUnit.name')->label('Leased Unit')->searchable(),
+                \Filament\Tables\Columns\TextColumn::make('location')->label('Location')->searchable(),
                 \Filament\Tables\Columns\TextColumn::make('scheduled_for')->label('Scheduled For')->date(),
                 \Filament\Tables\Columns\TextColumn::make('status')->label('Status')->badge(),
                 \Filament\Tables\Columns\TextColumn::make('scheduler.name')->label('Scheduled By'),

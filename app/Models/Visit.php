@@ -11,6 +11,7 @@ class Visit extends Model
 
     protected $fillable = [
         'unit_id',
+        'location',
         'scheduled_by',
         'scheduled_for',
         'status',

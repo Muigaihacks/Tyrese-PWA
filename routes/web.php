@@ -2,17 +2,11 @@
 
 use Illuminate\Support\Facades\Route;
 
-// Password reset redirect for email links
-Route::get('/reset-password/{token}', function ($token) {
-    $email = request('email');
-    return redirect("/reset-password?token=$token&email=$email");
-})->name('password.reset');
+// API and other backend routes above...
 
-// (Optional) Restore auth routes if you had them
-// Auth::routes();
-// require __DIR__.'/auth.php';
-
-// Catch-all route for React SPA
+// Catch-all route for React SPA (excluding /api routes)
 Route::get('/{any}', function () {
-    return view('app');
-})->where('any', '.*');
+    return view('app'); // Make sure resources/views/app.blade.php exists and loads your React app
+})->where('any', '^(?!api).*$');
+
+require __DIR__.'/auth.php';

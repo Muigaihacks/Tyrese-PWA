@@ -16,6 +16,7 @@ class LeasedUnit extends Model
         'longitude',
         'lessee_name',
         'lessee_contact',
+        'leasing_fee',
         'notes',
     ];
 

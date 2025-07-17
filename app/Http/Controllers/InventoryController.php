@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Inventory;
 use Illuminate\Http\Request;
+use App\Models\Location;
+use App\Models\InventoryAction;
+use Illuminate\Support\Facades\Auth;
 
 class InventoryController extends Controller
 {
@@ -44,12 +47,49 @@ class InventoryController extends Controller
     public function checkout(Request $request)
     {
         $this->authorize('checkout', Inventory::class);
-        // ... your checkout logic here ...
+        $validated = $request->validate([
+            'inventory_id' => 'required|exists:inventories,id',
+            'location_id' => 'required|exists:locations,id',
+            'visit_id' => 'required|exists:visits,id',
+            'quantity' => 'required|integer|min:1',
+            'condition_before' => 'required|string',
+            'notes' => 'nullable|string',
+        ]);
+        $validated['user_id'] = Auth::id();
+        $validated['action_type'] = 'checkout';
+        $validated['condition_after'] = null;
+        $action = InventoryAction::create($validated);
+        return response()->json($action, 201);
     }
 
     public function return(Request $request)
     {
         $this->authorize('return', Inventory::class);
-        // ... your return logic here ...
+        $validated = $request->validate([
+            'inventory_id' => 'required|exists:inventories,id',
+            'location_id' => 'required|exists:locations,id',
+            'visit_id' => 'required|exists:visits,id',
+            'quantity' => 'required|integer|min:1',
+            'condition_before' => 'nullable|string',
+            'condition_after' => 'required|string',
+            'notes' => 'nullable|string',
+        ]);
+        $validated['user_id'] = Auth::id();
+        $validated['action_type'] = 'return';
+        $action = InventoryAction::create($validated);
+        return response()->json($action, 201);
+    }
+
+    public function locationsDropdown(Request $request)
+    {
+        $locations = Location::orderBy('name')->get(['id', 'name']);
+        return response()->json($locations);
+    }
+
+    public function listDropdown(Request $request)
+    {
+        die('REACHED');
+        $inventories = \App\Models\Inventory::orderBy('name')->get(['id', 'name']);
+        return response()->json($inventories);
     }
 }

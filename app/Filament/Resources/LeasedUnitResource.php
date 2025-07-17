@@ -12,6 +12,8 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Textarea;
 
 class LeasedUnitResource extends Resource
 {
@@ -42,13 +44,19 @@ class LeasedUnitResource extends Resource
     {
         return $form
             ->schema([
-                \Filament\Forms\Components\TextInput::make('name')->label('Unit Name')->required(),
-                \Filament\Forms\Components\TextInput::make('address')->label('Address'),
-                \Filament\Forms\Components\TextInput::make('latitude')->label('Latitude')->required(),
-                \Filament\Forms\Components\TextInput::make('longitude')->label('Longitude')->required(),
-                \Filament\Forms\Components\TextInput::make('lessee_name')->label('Lessee Name'),
-                \Filament\Forms\Components\TextInput::make('lessee_contact')->label('Lessee Contact'),
-                \Filament\Forms\Components\Textarea::make('notes')->label('Notes')->rows(3),
+                TextInput::make('name')->label('Unit Name')->required(),
+                TextInput::make('address')->label('Address'),
+                TextInput::make('latitude')->label('Latitude')->required(),
+                TextInput::make('longitude')->label('Longitude')->required(),
+                TextInput::make('lessee_name')->label('Lessee Name'),
+                TextInput::make('lessee_contact')->label('Lessee Contact'),
+                Textarea::make('notes')->label('Notes')->rows(3),
+                TextInput::make('leasing_fee')
+                    ->label('Leasing Fee (Ksh)')
+                    ->numeric()
+                    ->required()
+                    ->minValue(0)
+                    ->step(0.01),
             ]);
     }
 

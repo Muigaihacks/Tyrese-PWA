@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import axios from 'axios';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -14,26 +15,16 @@ const Login = () => {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:8000/api/login', { // Laravel endpoint
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json', // Laravel expects this header
-        },
-        body: JSON.stringify({ email, password }),
-      });
+      // 1. Get CSRF cookie
+      await axios.get('/sanctum/csrf-cookie', { withCredentials: true });
 
-      const data = await response.json();
+      // 2. Login (POST to /login)
+      await axios.post('/login', { email, password }, { withCredentials: true });
 
-      if (!response.ok) {
-        throw new Error(data.message || 'Login failed');
-      }
-
-      // Save user info in context and redirect
-      login({ email }); // You can add more user info here if your API returns it
+      login({ email });
       navigate('/dashboard');
     } catch (err) {
-      setError(err.message);
+      setError('Login failed. Please check your credentials.');
     }
   };
 

@@ -1,4 +1,6 @@
 import React from "react";
+import CheckoutForm from "./CheckoutForm";
+import ReturnForm from "./ReturnForm";
 
 const inventoryData = [
   {
@@ -80,6 +82,11 @@ export default function InventoryTable() {
           ))}
         </tbody>
       </table>
+      {/* Add forms below the table */}
+      <div className="flex gap-8 mt-8">
+        <CheckoutForm />
+        <ReturnForm />
+      </div>
     </div>
   );
 }
