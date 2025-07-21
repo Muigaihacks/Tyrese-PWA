@@ -10,7 +10,6 @@ export default function ReturnForm() {
     location_id: "",
     visit_id: "",
     quantity: "",
-    condition_before: "",
     condition_after: "",
     notes: "",
   });
@@ -50,7 +49,6 @@ export default function ReturnForm() {
         location_id: "",
         visit_id: "",
         quantity: "",
-        condition_before: "",
         condition_after: "",
         notes: "",
       });
@@ -81,7 +79,7 @@ export default function ReturnForm() {
               <option value="">Select item</option>
               {inventories.map(inv => (
                 <option key={inv.id} value={inv.id}>
-                  {inv.name}
+                  {inv.product}
                 </option>
               ))}
             </select>
@@ -115,7 +113,7 @@ export default function ReturnForm() {
               <option value="">Select visit</option>
               {visits.map(visit => (
                 <option key={visit.id} value={visit.id}>
-                  {visit.id}
+                  {visit.name}
                 </option>
               ))}
             </select>
@@ -129,16 +127,6 @@ export default function ReturnForm() {
               onChange={handleChange}
               min="1"
               required
-              className="block w-full border rounded p-2"
-            />
-          </div>
-          <div className="mb-3">
-            <label>Condition Before:</label>
-            <input
-              type="text"
-              name="condition_before"
-              value={form.condition_before}
-              onChange={handleChange}
               className="block w-full border rounded p-2"
             />
           </div>

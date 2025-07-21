@@ -74,7 +74,7 @@ class VisitResource extends Resource
                 \Filament\Tables\Columns\TextColumn::make('leasedUnit.name')->label('Leased Unit')->searchable(),
                 \Filament\Tables\Columns\TextColumn::make('location')->label('Location')->searchable(),
                 \Filament\Tables\Columns\TextColumn::make('scheduled_for')->label('Scheduled For')->date(),
-                \Filament\Tables\Columns\TextColumn::make('status')->label('Status')->badge(),
+                \Filament\Tables\Columns\TextColumn::make('computed_status')->label('Status')->badge(),
                 \Filament\Tables\Columns\TextColumn::make('scheduler.name')->label('Scheduled By'),
                 \Filament\Tables\Columns\TextColumn::make('notes')->label('Notes')->limit(30),
                 \Filament\Tables\Columns\TextColumn::make('created_at')->label('Created')->dateTime()->sortable(),

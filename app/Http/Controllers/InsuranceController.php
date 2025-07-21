@@ -25,7 +25,25 @@ class InsuranceController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $this->authorize('create', Insurance::class);
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'id_number' => 'required|string|max:255',
+            'phone_number' => 'required|string|max:255',
+            'start_date' => 'required|date',
+            'site' => 'required|string|max:255',
+            'insurance_copy' => 'required|file|mimes:pdf,jpg,png',
+            'cover_expiry' => 'required|date',
+        ]);
+
+        if ($request->hasFile('insurance_copy')) {
+            $validated['insurance_copy'] = $request->file('insurance_copy')->store('insurance_copies', 'public');
+        }
+
+        $insurance = Insurance::create($validated);
+
+        return response()->json($insurance, 201);
     }
 
     /**

@@ -18,6 +18,33 @@ class Visit extends Model
         'notes',
     ];
 
+    protected $casts = [
+        'scheduled_for' => 'datetime',
+    ];
+
+    protected $appends = ['computed_status'];
+
+    public function getComputedStatusAttribute()
+    {
+        // If a status has been manually set to Completed or Cancelled, respect that.
+        if (in_array($this->getOriginal('status'), ['Completed', 'Cancelled'])) {
+            return $this->getOriginal('status');
+        }
+
+        // A visit is 'Completed' if a return action has been logged for it.
+        if ($this->inventoryActions()->where('action_type', 'return')->exists()) {
+            return 'Completed';
+        }
+
+        // If the visit date has passed and it's not completed, it's 'Missed'.
+        if ($this->scheduled_for->isPast()) {
+            return 'Missed';
+        }
+
+        // Otherwise, it's 'Upcoming'.
+        return 'Upcoming';
+    }
+
     public function leasedUnit()
     {
         return $this->belongsTo(LeasedUnit::class, 'unit_id');

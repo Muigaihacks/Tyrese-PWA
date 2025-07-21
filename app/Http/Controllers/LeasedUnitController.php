@@ -7,17 +7,9 @@ use Illuminate\Http\Request;
 
 class LeasedUnitController extends Controller
 {
-    public function __construct()
-    {
-        $this->authorizeResource(\App\Models\LeasedUnit::class, 'leased_unit');
-    }
-
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        return response()->json(LeasedUnit::all());
     }
 
     /**

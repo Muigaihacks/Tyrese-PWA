@@ -1,16 +1,54 @@
 import React, { useState } from "react";
+import axios from "axios";
 
 export default function InsuranceModule() {
   const [form, setForm] = useState({
     name: "",
-    idNumber: "",
-    phone: "",
-    startDate: "",
+    id_number: "",
+    phone_number: "",
+    start_date: "",
     site: "",
-    insuranceCopy: null,
-    coverExpiry: "",
+    insurance_copy: null,
+    cover_expiry: "",
   });
   const [sent, setSent] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleChange = (e) => {
+    const { name, value, files } = e.target;
+    setForm({ ...form, [name]: files ? files[0] : value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSent(false);
+    setError('');
+
+    const formData = new FormData();
+    for (const key in form) {
+      formData.append(key, form[key]);
+    }
+
+    try {
+      await axios.post('/api/insurances', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      setSent(true);
+      setForm({
+        name: "",
+        id_number: "",
+        phone_number: "",
+        start_date: "",
+        site: "",
+        insurance_copy: null,
+        cover_expiry: "",
+      });
+    } catch (error) {
+      setError('Failed to submit the form. Please check your input.');
+    }
+  };
 
   return (
     <div className="p-6 mt-6">
@@ -28,10 +66,7 @@ export default function InsuranceModule() {
       {/* Form */}
       <form
         className="border rounded p-6 bg-white shadow-md max-w-xl"
-        onSubmit={e => {
-          e.preventDefault();
-          setSent(true);
-        }}
+        onSubmit={handleSubmit}
       >
         <div className="text-xl font-semibold text-center mb-4 border-b pb-2">
           Employee Insurance
@@ -40,9 +75,10 @@ export default function InsuranceModule() {
           <label className="block font-medium mb-1">Name:</label>
           <input
             type="text"
+            name="name"
             className="w-full border rounded px-3 py-2"
             value={form.name}
-            onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+            onChange={handleChange}
             required
           />
         </div>
@@ -50,9 +86,10 @@ export default function InsuranceModule() {
           <label className="block font-medium mb-1">ID Number:</label>
           <input
             type="text"
+            name="id_number"
             className="w-full border rounded px-3 py-2"
-            value={form.idNumber}
-            onChange={e => setForm(f => ({ ...f, idNumber: e.target.value }))}
+            value={form.id_number}
+            onChange={handleChange}
             required
           />
         </div>
@@ -60,9 +97,10 @@ export default function InsuranceModule() {
           <label className="block font-medium mb-1">Phone No:</label>
           <input
             type="text"
+            name="phone_number"
             className="w-full border rounded px-3 py-2"
-            value={form.phone}
-            onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
+            value={form.phone_number}
+            onChange={handleChange}
             required
           />
         </div>
@@ -70,9 +108,10 @@ export default function InsuranceModule() {
           <label className="block font-medium mb-1">Start Date:</label>
           <input
             type="date"
+            name="start_date"
             className="w-full border rounded px-3 py-2"
-            value={form.startDate}
-            onChange={e => setForm(f => ({ ...f, startDate: e.target.value }))}
+            value={form.start_date}
+            onChange={handleChange}
             required
           />
         </div>
@@ -80,9 +119,10 @@ export default function InsuranceModule() {
           <label className="block font-medium mb-1">Site:</label>
           <input
             type="text"
+            name="site"
             className="w-full border rounded px-3 py-2"
             value={form.site}
-            onChange={e => setForm(f => ({ ...f, site: e.target.value }))}
+            onChange={handleChange}
             required
           />
         </div>
@@ -90,8 +130,9 @@ export default function InsuranceModule() {
           <label className="block font-medium mb-1">Insurance copy:</label>
           <input
             type="file"
+            name="insurance_copy"
             className="w-full border rounded px-3 py-2"
-            onChange={e => setForm(f => ({ ...f, insuranceCopy: e.target.files[0] }))}
+            onChange={handleChange}
             required
           />
         </div>
@@ -99,9 +140,10 @@ export default function InsuranceModule() {
           <label className="block font-medium mb-1">Cover Expiry:</label>
           <input
             type="date"
+            name="cover_expiry"
             className="w-full border rounded px-3 py-2"
-            value={form.coverExpiry}
-            onChange={e => setForm(f => ({ ...f, coverExpiry: e.target.value }))}
+            value={form.cover_expiry}
+            onChange={handleChange}
             required
           />
         </div>
@@ -114,6 +156,11 @@ export default function InsuranceModule() {
         {sent && (
           <div className="mt-4 p-3 bg-green-100 border border-green-400 text-green-800 rounded">
             Insurance details submitted successfully!
+          </div>
+        )}
+        {error && (
+          <div className="mt-4 p-3 bg-red-100 border border-red-400 text-red-800 rounded">
+            {error}
           </div>
         )}
       </form>

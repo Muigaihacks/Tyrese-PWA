@@ -18,6 +18,7 @@ return [
     'stateful' => [
         'localhost',
         'localhost:5173',
+        'localhost:8000',
         // add any other domains/ports you use for frontend
     ],
 

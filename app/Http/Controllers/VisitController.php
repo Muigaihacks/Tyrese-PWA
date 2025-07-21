@@ -4,12 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Models\Visit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class VisitController extends Controller
 {
     public function __construct()
     {
-        $this->authorizeResource(\App\Models\Visit::class, 'visit');
+        $this->authorizeResource(\App\Models\Visit::class, 'visit', [
+            'except' => ['dropdown'],
+        ]);
     }
 
     /**
@@ -62,32 +65,32 @@ class VisitController extends Controller
 
     public function schedule(Request $request)
     {
-        $this->authorize('schedule', \App\Models\Visit::class);
+        $this->authorize('create', Visit::class);
+
         $validated = $request->validate([
-            'scheduled_for' => 'required|date',
-            'scheduled_by' => 'required|string',
+            'unit_id' => 'required|exists:leased_units,id',
             'location' => 'required|string',
-            // add other fields as needed
+            'scheduled_for' => 'required|date',
+            'notes' => 'nullable|string',
         ]);
 
+        $validated['scheduled_by'] = auth()->id();
+
         $visit = Visit::create($validated);
+
         return response()->json($visit, 201);
     }
 
-    public function dropdownList(Request $request)
+    public function dropdown()
     {
-        $visits = \App\Models\Visit::with('scheduler')
-            ->orderBy('scheduled_for')
-            ->get()
-            ->map(function ($visit) {
-                return [
-                    'id' => $visit->id,
-                    'location' => $visit->location,
-                    'scheduled_by' => $visit->scheduler ? $visit->scheduler->name : '',
-                    'notes' => $visit->notes,
-                ];
-            });
-
-        return response()->json($visits);
+        $visits = Visit::with('scheduler')->get();
+        $formattedVisits = $visits->map(function ($visit) {
+            $schedulerName = $visit->scheduler ? $visit->scheduler->name : 'N/A';
+            return [
+                'id' => $visit->id,
+                'name' => 'Visit to ' . $visit->location . ' on ' . $visit->scheduled_for->format('M d, Y') . ' by ' . $schedulerName,
+            ];
+        });
+        return response()->json($formattedVisits);
     }
 }

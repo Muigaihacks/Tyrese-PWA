@@ -10,6 +10,7 @@ export default function CheckoutForm() {
     location_id: "",
     visit_id: "",
     quantity: "",
+    condition_before: "",
     notes: "",
   });
   const [loading, setLoading] = useState(true);
@@ -48,6 +49,7 @@ export default function CheckoutForm() {
         location_id: "",
         visit_id: "",
         quantity: "",
+        condition_before: "",
         notes: "",
       });
     } catch {
@@ -77,7 +79,7 @@ export default function CheckoutForm() {
               <option value="">Select item</option>
               {inventories.map(inv => (
                 <option key={inv.id} value={inv.id}>
-                  {inv.name}
+                  {inv.product}
                 </option>
               ))}
             </select>
@@ -111,7 +113,7 @@ export default function CheckoutForm() {
               <option value="">Select visit</option>
               {visits.map(visit => (
                 <option key={visit.id} value={visit.id}>
-                  {visit.id}
+                  {visit.name}
                 </option>
               ))}
             </select>
@@ -124,6 +126,17 @@ export default function CheckoutForm() {
               value={form.quantity}
               onChange={handleChange}
               min="1"
+              required
+              className="block w-full border rounded p-2"
+            />
+          </div>
+          <div className="mb-3">
+            <label>Condition Before:</label>
+            <input
+              type="text"
+              name="condition_before"
+              value={form.condition_before}
+              onChange={handleChange}
               required
               className="block w-full border rounded p-2"
             />

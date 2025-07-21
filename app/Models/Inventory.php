@@ -16,6 +16,8 @@ class Inventory extends Model
         'date_added' => 'date',
     ];
 
+    protected $appends = ['stock_level'];
+
     public function inventoryLocations()
     {
         return $this->hasMany(InventoryLocation::class);
@@ -32,10 +34,12 @@ class Inventory extends Model
 
         if ($total > 20) {
             return 'In Stock';
-        } elseif ($total > 0) {
-            return 'Low Stock';
-        } else {
-            return 'Out of Stock';
         }
+
+        if ($total > 0) {
+            return 'Low Stock';
+        }
+
+        return 'Out of Stock';
     }
 }

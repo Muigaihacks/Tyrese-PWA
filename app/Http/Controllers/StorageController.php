@@ -25,7 +25,21 @@ class StorageController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $this->authorize('create', Storage::class);
+
+        $validated = $request->validate([
+            'client_name' => 'required|string|max:255',
+            'phone_number' => 'required|string|max:255',
+            'product_name' => 'required|string|max:255',
+            'quantity' => 'required|numeric|min:0',
+            'unit' => 'required|string|max:20',
+            'date' => 'required|date',
+            'fee' => 'required|numeric|min:0',
+        ]);
+
+        $storage = Storage::create($validated);
+
+        return response()->json($storage, 201);
     }
 
     /**

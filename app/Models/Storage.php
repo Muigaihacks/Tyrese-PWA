@@ -11,6 +11,7 @@ class Storage extends Model
         'phone_number',
         'product_name',
         'quantity',
+        'unit',
         'date',
         'fee',
     ];      

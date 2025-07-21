@@ -10,9 +10,10 @@ class Insurance extends Model
         'name',
         'id_number',
         'phone_number',
+        'start_date',
+        'site',
         'insurance_copy',
         'cover_expiry',
-        'active',
     ];
 
     protected $casts = [

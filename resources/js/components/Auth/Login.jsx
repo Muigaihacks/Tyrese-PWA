@@ -22,7 +22,7 @@ const Login = () => {
       await axios.post('/login', { email, password }, { withCredentials: true });
 
       login({ email });
-      navigate('/dashboard');
+      navigate('/inventory');
     } catch (err) {
       setError('Login failed. Please check your credentials.');
     }

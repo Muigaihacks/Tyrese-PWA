@@ -61,4 +61,9 @@ class LocationResource extends Resource
             'edit' => Pages\EditLocation::route('/{record}/edit'),
         ];
     }
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return false;
+    }
 }
