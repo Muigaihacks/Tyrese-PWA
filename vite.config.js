@@ -11,9 +11,7 @@ import { defineConfig } from 'vite';
         ],
         refresh: true,
       }),
-      react({
-        include: '**/*.jsx',
-      }),
+      react(),
     ],
     server: {
       host: 'localhost',
@@ -24,6 +22,6 @@ import { defineConfig } from 'vite';
           changeOrigin: true,
         },
       },
-      hmr: false,
+      hmr: { host: 'localhost' },
     },
   });
