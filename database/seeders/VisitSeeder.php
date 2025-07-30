@@ -4,23 +4,18 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\Visit;
-use App\Models\LeasedUnit;
-use App\Models\User;
 
 class VisitSeeder extends Seeder
 {
+    /**
+     * Run the database seeds.
+     */
     public function run(): void
     {
-        $unit = LeasedUnit::first();
-        $user = \App\Models\User::first();
-
-        Visit::create([
-            'unit_id' => $unit ? $unit->id : 1,
-            'scheduled_by' => $user ? $user->id : 1,
-            'scheduled_for' => now()->addDays(3)->toDateString(),
-            'status' => 'scheduled',
-            'notes' => 'Routine maintenance visit',
-        ]);
-        // Add more visits as needed
+        // Remove all test data creation
+        // Visit::create([...]);
+        
+        // Keep the structure but don't create test data
+        // Data will come from user submissions
     }
 }

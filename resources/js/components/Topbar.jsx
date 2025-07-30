@@ -1,4 +1,8 @@
+import { useAuth } from '../context/AuthContext';
+
 export default function Topbar() {
+  const { user, logout } = useAuth();
+
   return (
     <div className="flex items-center justify-between bg-white h-24 py-4 px-8 shadow-sm w-full">
       {/* Hamburger menu */}
@@ -25,13 +29,19 @@ export default function Topbar() {
           </svg>
         </button>
         <div className="flex items-center">
-          {/* Avatar placeholder */}
+          {/* Generic avatar */}
           <img
-            src="images/avatar.jpg"
+            src="/images/avatar.jpg"
             alt="Profile"
             className="w-8 h-8 rounded-full mr-2 object-cover"
           />
-          <span className="font-medium text-gray-700">Muigai</span>
+          <span className="font-medium text-gray-700">{user?.email || "Guest"}</span>
+          <button
+            onClick={logout}
+            className="ml-4 px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
+          >
+            Logout
+          </button>
         </div>
       </div>
     </div>

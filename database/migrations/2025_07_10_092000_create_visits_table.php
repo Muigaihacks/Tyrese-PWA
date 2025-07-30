@@ -13,7 +13,7 @@ return new class extends Migration
             $table->foreignId('unit_id')->constrained('leased_units')->onDelete('cascade');
             $table->foreignId('scheduled_by')->constrained('users')->onDelete('cascade');
             $table->date('scheduled_for');
-            $table->string('status')->default('scheduled');
+            $table->string('status')->default('upcoming');
             $table->text('notes')->nullable();
             $table->timestamps();
         });

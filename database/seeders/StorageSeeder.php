@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\Storage;
 
@@ -13,14 +12,10 @@ class StorageSeeder extends Seeder
      */
     public function run(): void
     {
-        Storage::create([
-            'client_name' => 'Jane Doe',
-            'phone_number' => '0712345678',
-            'product_name' => 'Mangoes',
-            'quantity' => 100,
-            'date' => now()->toDateString(),
-            'fee' => 500.00,
-        ]);
-        // Add more records as needed
+        // Remove all test data creation
+        // Storage::create([...]);
+        
+        // Keep the structure but don't create test data
+        // Data will come from user submissions
     }
 }

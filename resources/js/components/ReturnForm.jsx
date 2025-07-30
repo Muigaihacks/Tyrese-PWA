@@ -43,7 +43,7 @@ export default function ReturnForm() {
     setError(null);
     try {
       await axios.post("/api/inventory/return", form);
-      setSuccess("Return successful!");
+      setSuccess("Return successful! Page will reload in 2 seconds...");
       setForm({
         inventory_id: "",
         location_id: "",
@@ -52,6 +52,11 @@ export default function ReturnForm() {
         condition_after: "",
         notes: "",
       });
+      
+      // Auto-reload the page after 2 seconds
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
     } catch {
       setError("Return failed. Please check your input.");
     }

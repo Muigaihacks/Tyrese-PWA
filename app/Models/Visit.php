@@ -59,4 +59,19 @@ class Visit extends Model
     {
         return $this->hasMany(InventoryAction::class);
     }
+
+    const STATUS_UPCOMING = 'upcoming';
+    const STATUS_IN_PROGRESS = 'in-progress';
+    const STATUS_COMPLETED = 'completed';
+    const STATUS_MISSED = 'missed';
+
+    public static function getStatusOptions()
+    {
+        return [
+            self::STATUS_UPCOMING => 'Upcoming',
+            self::STATUS_IN_PROGRESS => 'In-Progress',
+            self::STATUS_COMPLETED => 'Completed',
+            self::STATUS_MISSED => 'Missed',
+        ];
+    }
 }

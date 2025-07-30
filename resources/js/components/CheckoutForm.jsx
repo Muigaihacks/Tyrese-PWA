@@ -43,7 +43,7 @@ export default function CheckoutForm() {
     setError(null);
     try {
       await axios.post("/api/inventory/checkout", form);
-      setSuccess("Checkout successful!");
+      setSuccess("Checkout successful! Page will reload in 2 seconds...");
       setForm({
         inventory_id: "",
         location_id: "",
@@ -52,6 +52,11 @@ export default function CheckoutForm() {
         condition_before: "",
         notes: "",
       });
+      
+      // Auto-reload the page after 2 seconds
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
     } catch {
       setError("Checkout failed. Please check your input.");
     }

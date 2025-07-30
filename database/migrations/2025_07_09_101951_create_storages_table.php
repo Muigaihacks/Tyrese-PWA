@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('phone_number');
             $table->string('product_name');
             $table->integer('quantity');
+            $table->string('unit')->nullable(); // Add this if it doesn't exist
             $table->date('date');
             $table->decimal('fee', 8, 2);
             $table->timestamps();

@@ -22,6 +22,6 @@ import { defineConfig } from 'vite';
           changeOrigin: true,
         },
       },
-      hmr: { host: 'localhost' },
+      hmr: false,
     },
   });

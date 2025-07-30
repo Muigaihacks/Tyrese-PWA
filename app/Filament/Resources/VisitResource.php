@@ -13,6 +13,8 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Select;
+use Filament\Tables\Columns\TextColumn;
 
 class VisitResource extends Resource
 {
@@ -53,12 +55,9 @@ class VisitResource extends Resource
                     ->required(),
                 \Filament\Forms\Components\Select::make('status')
                     ->label('Status')
-                    ->options([
-                        'scheduled' => 'Scheduled',
-                        'completed' => 'Completed',
-                        'cancelled' => 'Cancelled',
-                    ])
-                    ->required(),
+                    ->options(Visit::getStatusOptions())
+                    ->required()
+                    ->default(Visit::STATUS_UPCOMING),
                 \Filament\Forms\Components\Select::make('scheduled_by')
                     ->label('Scheduled By')
                     ->relationship('scheduler', 'name')
@@ -74,7 +73,15 @@ class VisitResource extends Resource
                 \Filament\Tables\Columns\TextColumn::make('leasedUnit.name')->label('Leased Unit')->searchable(),
                 \Filament\Tables\Columns\TextColumn::make('location')->label('Location')->searchable(),
                 \Filament\Tables\Columns\TextColumn::make('scheduled_for')->label('Scheduled For')->date(),
-                \Filament\Tables\Columns\TextColumn::make('computed_status')->label('Status')->badge(),
+                \Filament\Tables\Columns\TextColumn::make('status')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'upcoming' => 'warning',
+                        'in-progress' => 'info',
+                        'completed' => 'success',
+                        'missed' => 'danger',
+                        default => 'gray',
+                    }),
                 \Filament\Tables\Columns\TextColumn::make('scheduler.name')->label('Scheduled By'),
                 \Filament\Tables\Columns\TextColumn::make('notes')->label('Notes')->limit(30),
                 \Filament\Tables\Columns\TextColumn::make('created_at')->label('Created')->dateTime()->sortable(),

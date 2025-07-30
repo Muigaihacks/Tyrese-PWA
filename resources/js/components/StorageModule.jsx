@@ -43,6 +43,11 @@ export default function StorageModule() {
         date: '',
         fee: '',
       });
+      
+      // Auto-reload the page after 2 seconds
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
     } catch (error) {
       setError('Failed to submit the form. Please check your input.');
     }
@@ -77,7 +82,7 @@ export default function StorageModule() {
       
       {success && (
         <div className="mb-4 p-4 bg-green-100 border border-green-400 text-green-800 rounded">
-          Submission has been successfully recorded!
+          Submission has been successfully recorded! Page will reload in 2 seconds...
         </div>
       )}
       {error && (
@@ -120,9 +125,12 @@ export default function StorageModule() {
               min="0"
               required
             />
-            <select name="unit" value={form.unit} onChange={handleChange} className="border border-l-0 rounded-r px-2 py-2 bg-gray-100 text-gray-700">
-              <option value="kg">Kg</option>
-              <option value="tonne">Tonne</option>
+            <select name="unit" value={form.unit} onChange={handleChange} className="w-full border rounded px-3 py-2" required>
+              <option value="">Select Unit</option>
+              <option value="KG">KG</option>
+              <option value="Tonne">Tonne</option>
+              <option value="Crates">Crates</option>
+              <option value="Boxes">Boxes</option>
             </select>
           </div>
         </div>

@@ -48,10 +48,11 @@ export default function MapModule() {
         notes: form.note,
       });
       setSent(true);
+      
+      // Auto-reload the page after 2 seconds
       setTimeout(() => {
-        setSent(false);
-        setSelectedUnit(null);
-      }, 3000);
+        window.location.reload();
+      }, 2000);
     } catch (error) {
       setError('Failed to schedule visit.');
     }
@@ -142,7 +143,7 @@ export default function MapModule() {
           </button>
           {sent && (
             <div className="mt-4 p-3 bg-green-100 border border-green-400 text-green-800 rounded">
-              Maintenance visit scheduled successfully!
+              Maintenance visit scheduled successfully! Page will reload in 2 seconds...
             </div>
           )}
         </form>

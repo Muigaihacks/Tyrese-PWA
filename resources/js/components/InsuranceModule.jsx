@@ -36,15 +36,11 @@ export default function InsuranceModule() {
         },
       });
       setSent(true);
-      setForm({
-        name: "",
-        id_number: "",
-        phone_number: "",
-        start_date: "",
-        site: "",
-        insurance_copy: null,
-        cover_expiry: "",
-      });
+      
+      // Auto-reload the page after 2 seconds
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
     } catch (error) {
       setError('Failed to submit the form. Please check your input.');
     }
@@ -155,7 +151,7 @@ export default function InsuranceModule() {
         </button>
         {sent && (
           <div className="mt-4 p-3 bg-green-100 border border-green-400 text-green-800 rounded">
-            Insurance details submitted successfully!
+            Insurance details submitted successfully! Page will reload in 2 seconds...
           </div>
         )}
         {error && (

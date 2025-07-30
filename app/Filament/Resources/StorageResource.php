@@ -46,6 +46,14 @@ class StorageResource extends Resource
                 \Filament\Forms\Components\TextInput::make('quantity')->label('Quantity')->numeric()->required(),
                 \Filament\Forms\Components\DatePicker::make('date')->label('Date')->required(),
                 \Filament\Forms\Components\TextInput::make('fee')->label('Fee')->numeric()->required(),
+                \Filament\Forms\Components\Select::make('unit')
+                    ->options([
+                        'KG' => 'KG',
+                        'Tonne' => 'Tonne',
+                        'Crates' => 'Crates',
+                        'Boxes' => 'Boxes',
+                    ])
+                    ->required(),
             ]);
     }
 
@@ -56,7 +64,11 @@ class StorageResource extends Resource
                 \Filament\Tables\Columns\TextColumn::make('client_name')->label('Client Name')->searchable(),
                 \Filament\Tables\Columns\TextColumn::make('phone_number')->label('Phone Number'),
                 \Filament\Tables\Columns\TextColumn::make('product_name')->label('Product Name'),
-                \Filament\Tables\Columns\TextColumn::make('quantity')->label('Quantity'),
+                \Filament\Tables\Columns\TextColumn::make('quantity')
+                    ->label('Quantity')
+                    ->formatStateUsing(fn ($record) => $record->quantity . ' ' . $record->unit)
+                    ->searchable()
+                    ->sortable(),
                 \Filament\Tables\Columns\TextColumn::make('date')->label('Date')->date(),
                 \Filament\Tables\Columns\TextColumn::make('fee')->label('Fee')->money('KES'),
             ])

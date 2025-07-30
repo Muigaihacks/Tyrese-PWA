@@ -6,6 +6,10 @@ use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\VisitController;
 use App\Http\Controllers\LeasedUnitController;
+use App\Http\Controllers\BatteryController;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Hash;
+use App\Models\User;
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/user', function (Request $request) {
@@ -21,4 +25,29 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/visits/schedule', [VisitController::class, 'schedule']);
     Route::post('/storage', [\App\Http\Controllers\StorageController::class, 'store']);
     Route::post('/insurances', [\App\Http\Controllers\InsuranceController::class, 'store']);
+    
+    // Battery Management Routes
+    Route::get('/batteries', [BatteryController::class, 'index']);
+    Route::post('/batteries/swap', [BatteryController::class, 'swap']);
+});
+
+Route::post('/reset-password', function (Request $request) {
+    $request->validate([
+        'token' => 'required',
+        'email' => 'required|email',
+        'password' => 'required|confirmed|min:8',
+    ]);
+
+    $status = Password::reset(
+        $request->only('email', 'password', 'password_confirmation', 'token'),
+        function ($user, $password) {
+            $user->forceFill([
+                'password' => Hash::make($password)
+            ])->save();
+        }
+    );
+
+    return $status === Password::PASSWORD_RESET
+        ? response()->json(['message' => 'Password reset successful!'])
+        : response()->json(['message' => __($status)], 400);
 });

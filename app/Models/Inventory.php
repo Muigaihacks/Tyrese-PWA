@@ -8,12 +8,15 @@ class Inventory extends Model
 {
     protected $fillable = [
         'product',
+        'item_type',
+        'quantity',
         'date_added',
         'condition',
     ];
 
     protected $casts = [
         'date_added' => 'date',
+        'item_type' => 'string',
     ];
 
     protected $appends = ['stock_level'];
@@ -41,5 +44,22 @@ class Inventory extends Model
         }
 
         return 'Out of Stock';
+    }
+
+    public function getItemTypeOptions()
+    {
+        return [
+            'tool' => 'Tool',
+            'spare_part' => 'Spare Part'
+        ];
+    }
+
+    public function getItemTypeColor()
+    {
+        return match($this->item_type) {
+            'tool' => 'blue',
+            'spare_part' => 'green',
+            default => 'gray'
+        };
     }
 }

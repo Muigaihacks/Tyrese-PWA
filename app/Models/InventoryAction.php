@@ -19,8 +19,20 @@ class InventoryAction extends Model
         'condition_before',
         'condition_after',
         'notes',
+        'items_data',
+        'battery_condition_before',
+        'battery_condition_after',
+        'from_unit_id',
+        'to_unit_id',
     ];
 
+    protected $casts = [
+        'items_data' => 'array',
+        'battery_condition_before' => 'string',
+        'battery_condition_after' => 'string',
+    ];
+
+    // Relationships
     public function inventory()
     {
         return $this->belongsTo(Inventory::class);
@@ -39,5 +51,53 @@ class InventoryAction extends Model
     public function visit()
     {
         return $this->belongsTo(Visit::class);
+    }
+
+    public function fromUnit()
+    {
+        return $this->belongsTo(LeasedUnit::class, 'from_unit_id');
+    }
+
+    public function toUnit()
+    {
+        return $this->belongsTo(LeasedUnit::class, 'to_unit_id');
+    }
+
+    // Helper methods
+    public function getActionTypeOptions()
+    {
+        return [
+            'checkout' => 'Checkout',
+            'return' => 'Return',
+            'tools' => 'Tools',
+            'batteries' => 'Batteries'
+        ];
+    }
+
+    public function getBatteryConditionOptions()
+    {
+        return [
+            'excellent' => 'Excellent',
+            'good' => 'Good',
+            'fair' => 'Fair',
+            'poor' => 'Poor',
+            'defective' => 'Defective'
+        ];
+    }
+
+    // Scopes
+    public function scopeByActionType($query, $type)
+    {
+        return $query->where('action_type', $type);
+    }
+
+    public function scopeTools($query)
+    {
+        return $query->where('action_type', 'tools');
+    }
+
+    public function scopeBatteries($query)
+    {
+        return $query->where('action_type', 'batteries');
     }
 }

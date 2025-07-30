@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState } from 'react';
+import axios from 'axios';
 
 const AuthContext = createContext();
 
@@ -17,9 +18,15 @@ export function AuthProvider({ children }) {
     localStorage.setItem('user', JSON.stringify(userData));
   };
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      await axios.post('/logout', {}, { withCredentials: true });
+    } catch (e) {
+      // Ignore errors, just clear local state
+    }
     setUser(null);
     localStorage.removeItem('user');
+    window.location.href = '/login'; // Redirect to login page
   };
 
   return (

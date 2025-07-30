@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 
 export default function ResetPassword() {
   const [password, setPassword] = useState("");
@@ -9,9 +9,17 @@ export default function ResetPassword() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const params = new URLSearchParams(window.location.search);
-  const token = params.get("token");
+  const { token } = useParams();
+  const params = new URLSearchParams(useLocation().search);
   const email = params.get("email");
+
+  console.log("ResetPassword loaded", { token, email });
+
+  function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
