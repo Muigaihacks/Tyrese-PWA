@@ -3,58 +3,65 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\UserResource\Pages;
-use App\Filament\Resources\UserResource\RelationManagers;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Illuminate\Auth\Notifications\ResetPassword;
-use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class UserResource extends Resource
 {
     protected static ?string $model = User::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-users';
 
     protected static ?string $navigationGroup = 'User Management';
 
-    public static function canViewAny(): bool
+    // Add this method to ensure the resource is visible
+    public static function shouldRegisterNavigation(): bool
     {
-        return auth()->user()?->hasRole('admin');
-    }
-    public static function canCreate(): bool
-    {
-        return auth()->user()?->hasRole('admin');
-    }
-    public static function canEdit($record): bool
-    {
-        return auth()->user()?->hasRole('admin');
-    }
-    public static function canDelete($record): bool
-    {
-        return auth()->user()?->hasRole('admin');
+        return true;
     }
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                \Filament\Forms\Components\TextInput::make('name')->label('Name')->required(),
-                \Filament\Forms\Components\TextInput::make('email')->label('Email')->email()->required()->unique(ignoreRecord: true),
-                \Filament\Forms\Components\Select::make('roles')
-                    ->label('Role')
-                    ->relationship('roles', 'name')
-                    ->preload()
-                    ->required()
-                    ->multiple(false), // set to true if you want to allow multiple roles per user
-                \Filament\Forms\Components\Toggle::make('status')
-                    ->label('Active')
-                    ->default(true),
+                Forms\Components\Section::make('User Information')
+                    ->schema([
+                        Forms\Components\TextInput::make('name')
+                            ->required()
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('email')
+                            ->email()
+                            ->required()
+                            ->maxLength(255)
+                            ->unique(ignoreRecord: true),
+                        Forms\Components\TextInput::make('password')
+                            ->password()
+                            ->dehydrateStateUsing(fn ($state) => Hash::make($state))
+                            ->dehydrated(fn ($state) => !empty($state))
+                            ->required(fn (string $context): bool => $context === 'create')
+                            ->label('Password (leave blank to keep current password)')
+                            ->helperText('For new users, use a simple password like "password123". Users can change it after first login.'),
+                        Forms\Components\Select::make('role')
+                            ->options([
+                                'admin' => 'Admin',
+                                'user' => 'User',
+                            ])
+                            ->default('user')
+                            ->required(),
+                        Forms\Components\Select::make('status')
+                            ->options([
+                                true => 'Active',
+                                false => 'Inactive',
+                            ])
+                            ->default(true)
+                            ->required(),
+                    ])->columns(2),
             ]);
     }
 
@@ -62,29 +69,74 @@ class UserResource extends Resource
     {
         return $table
             ->columns([
-                \Filament\Tables\Columns\TextColumn::make('name')->label('Name')->searchable(),
-                \Filament\Tables\Columns\TextColumn::make('email')->label('Email')->searchable(),
-                \Filament\Tables\Columns\BadgeColumn::make('roles.name')
-                    ->label('Role')
+                Tables\Columns\TextColumn::make('name')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('email')
+                    ->searchable(),
+                Tables\Columns\BadgeColumn::make('role')
                     ->colors([
-                        'primary' => 'admin',
-                        'success' => 'manager',
-                        'warning' => 'team_lead',
-                        'info' => 'site_manager',
-                        'secondary' => 'user',
+                        'danger' => 'admin',
+                        'success' => 'user',
                     ]),
-                \Filament\Tables\Columns\IconColumn::make('status')->label('Active')->boolean(),
-                \Filament\Tables\Columns\TextColumn::make('created_at')->label('Created')->dateTime()->sortable(),
+                Tables\Columns\BadgeColumn::make('status')
+                    ->colors([
+                        'success' => true,
+                        'danger' => false,
+                    ])
+                    ->formatStateUsing(fn (bool $state): string => $state ? 'Active' : 'Inactive'),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('updated_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('role')
+                    ->options([
+                        'admin' => 'Admin',
+                        'user' => 'User',
+                    ]),
+                Tables\Filters\SelectFilter::make('status')
+                    ->options([
+                        true => 'Active',
+                        false => 'Inactive',
+                    ]),
             ])
             ->actions([
-                \Filament\Tables\Actions\EditAction::make(),
-                \Filament\Tables\Actions\DeleteAction::make(),
+                Tables\Actions\EditAction::make(),
+                Tables\Actions\Action::make('reset_password')
+                    ->label('Reset Password')
+                    ->icon('heroicon-o-key')
+                    ->color('warning')
+                    ->form([
+                        Forms\Components\TextInput::make('new_password')
+                            ->password()
+                            ->required()
+                            ->minLength(8)
+                            ->label('New Password'),
+                        Forms\Components\TextInput::make('confirm_password')
+                            ->password()
+                            ->required()
+                            ->same('new_password')
+                            ->label('Confirm Password'),
+                    ])
+                    ->action(function (User $user, array $data): void {
+                        $user->update([
+                            'password' => Hash::make($data['new_password'])
+                        ]);
+                    })
+                    ->requiresConfirmation()
+                    ->modalHeading('Reset Password')
+                    ->modalDescription('Are you sure you want to reset the password for ' . '{{ $record->name }}' . '?')
+                    ->modalSubmitActionLabel('Reset Password'),
             ])
             ->bulkActions([
-                \Filament\Tables\Actions\DeleteBulkAction::make(),
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                ]),
             ]);
     }
 

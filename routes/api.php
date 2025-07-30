@@ -10,6 +10,33 @@ use App\Http\Controllers\BatteryController;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
+
+// Password change route
+Route::post('/change-password', function (Request $request) {
+    $request->validate([
+        'current_password' => 'required',
+        'new_password' => 'required|min:8|confirmed',
+    ]);
+
+    $user = Auth::user();
+    
+    if (!$user) {
+        return response()->json(['message' => 'User not authenticated.'], 401);
+    }
+
+    // Check current password
+    if (!Hash::check($request->current_password, $user->password)) {
+        return response()->json(['message' => 'Current password is incorrect.'], 400);
+    }
+
+    // Update password
+    $user->update([
+        'password' => Hash::make($request->new_password)
+    ]);
+
+    return response()->json(['message' => 'Password changed successfully!']);
+})->middleware(['auth:sanctum', 'api']);
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/user', function (Request $request) {
@@ -31,6 +58,20 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/batteries/swap', [BatteryController::class, 'swap']);
 });
 
+Route::post('/forgot-password', function (Request $request) {
+    $request->validate([
+        'email' => 'required|email',
+    ]);
+
+    $status = Password::sendResetLink(
+        $request->only('email')
+    );
+
+    return $status === Password::RESET_LINK_SENT
+        ? response()->json(['message' => __($status)])
+        : response()->json(['message' => __($status)], 400);
+})->middleware('api');
+
 Route::post('/reset-password', function (Request $request) {
     $request->validate([
         'token' => 'required',
@@ -50,4 +91,4 @@ Route::post('/reset-password', function (Request $request) {
     return $status === Password::PASSWORD_RESET
         ? response()->json(['message' => 'Password reset successful!'])
         : response()->json(['message' => __($status)], 400);
-});
+})->middleware('api');

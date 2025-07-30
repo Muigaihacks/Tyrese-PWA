@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB; // Added DB facade import
 
 return new class extends Migration
 {
@@ -12,9 +13,6 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('inventory_actions', function (Blueprint $table) {
-            // Update existing action_type column to include new values
-            $table->enum('action_type', ['checkout', 'return', 'tools', 'batteries'])->change();
-            
             // Add support for multiple items (JSON field)
             $table->json('items_data')->nullable()->after('action_type'); // Store multiple items data
             
@@ -28,6 +26,9 @@ return new class extends Migration
             $table->foreign('from_unit_id')->references('id')->on('leased_units')->onDelete('set null');
             $table->foreign('to_unit_id')->references('id')->on('leased_units')->onDelete('set null');
         });
+        
+        // Update existing action_type values to include new options (PostgreSQL compatible)
+        DB::statement("ALTER TABLE inventory_actions ALTER COLUMN action_type TYPE VARCHAR(255)");
     }
 
     /**
@@ -36,11 +37,23 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('inventory_actions', function (Blueprint $table) {
-            $table->dropForeign(['from_unit_id', 'to_unit_id']);
-            $table->dropColumn(['items_data', 'battery_condition_before', 'battery_condition_after', 'from_unit_id', 'to_unit_id']);
+            // Drop foreign keys if they exist
+            try {
+                $table->dropForeign(['from_unit_id']);
+            } catch (Exception $e) {
+                // Foreign key doesn't exist, ignore
+            }
+            try {
+                $table->dropForeign(['to_unit_id']);
+            } catch (Exception $e) {
+                // Foreign key doesn't exist, ignore
+            }
             
-            // Revert action_type to original values
-            $table->enum('action_type', ['checkout', 'return'])->change();
+            // Drop columns
+            $table->dropColumn(['items_data', 'battery_condition_before', 'battery_condition_after', 'from_unit_id', 'to_unit_id']);
         });
+        
+        // Revert action_type to original values
+        DB::statement("ALTER TABLE inventory_actions ALTER COLUMN action_type TYPE VARCHAR(255)");
     }
 };

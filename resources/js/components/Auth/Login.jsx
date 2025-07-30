@@ -67,7 +67,7 @@ const Login = () => {
                 <input type="checkbox" id="remember" className="mr-2" />
                 <label className="text-sm text-gray-700" htmlFor="remember">Remember me</label>
               </div>
-              <a href="#" className="text-sm text-green-500">Forgot password?</a>
+              <a href="/forgot-password" className="text-sm text-green-500">Forgot password?</a>
             </div>
             <button type="submit" className="w-full bg-green-500 text-white p-2 rounded-lg">Login</button>
             {error && <p className="text-red-500 text-sm mt-2">{error}</p>}

@@ -7,13 +7,15 @@ import Insurance from './pages/Insurance';
 import ProtectedRoute from './components/ProtectedRoute';
 import Login from './components/Auth/Login.jsx';
 import ResetPassword from './components/Auth/ResetPassword';
+import ForgotPassword from './components/Auth/ForgotPassword';
 
 export default function App() {
   return (
     <Router>
       <Routes>
-        {/* Public route */}
+        {/* Public routes */}
         <Route path="/login" element={<Login />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/password-reset/:token" element={<ResetPassword />} />
 

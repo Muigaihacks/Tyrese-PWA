@@ -12,7 +12,6 @@ class AdminDashboardStats extends BaseWidget
     protected function getCards(): array
     {
         $toolsCheckedOut = InventoryAction::select('inventory_id')
-            ->latest('created_at')
             ->groupBy('inventory_id')
             ->havingRaw("MAX(action_type) = 'checkout'")
             ->count();

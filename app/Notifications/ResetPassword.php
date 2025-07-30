@@ -21,8 +21,8 @@ class ResetPassword extends Notification
 
     public function toMail($notifiable)
     {
-        // Change the URL to your React route
-        $url = url('/reset-password?token=' . $this->token . '&email=' . urlencode($notifiable->getEmailForPasswordReset()));
+        // Change the URL to your React route with token as path parameter
+        $url = url('/password-reset/' . $this->token . '?email=' . urlencode($notifiable->getEmailForPasswordReset()));
 
         return (new MailMessage)
             ->line('You are receiving this email because we received a password reset request for your account.')

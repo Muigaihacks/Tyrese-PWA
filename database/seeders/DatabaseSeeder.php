@@ -15,7 +15,13 @@ class DatabaseSeeder extends Seeder
         $this->call([
             RoleSeeder::class,
             PermissionSeeder::class,
-            BatterySeeder::class,
+            LeasedUnitSeeder::class, // Create cold storage units first
+            StorageSeeder::class,
+            VisitSeeder::class,
+            InventorySeeder::class, // Create inventory items
+            InventoryActionSeeder::class,
+            BatterySeeder::class, // Batteries need units to exist
+            UpdateLeasedUnitsSeeder::class, // Update units with new fields
         ]);
     }
 }

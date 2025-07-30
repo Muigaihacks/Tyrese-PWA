@@ -9,42 +9,95 @@ export default function ResetPassword() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  // Get token from URL params (path parameter)
   const { token } = useParams();
+  // Get email from query parameters
   const params = new URLSearchParams(useLocation().search);
   const email = params.get("email");
 
   console.log("ResetPassword loaded", { token, email });
 
-  function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(';').shift();
-  }
-
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (password !== passwordConfirmation) {
+      setError("Passwords do not match.");
+      return;
+    }
+
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters long.");
+      return;
+    }
+
     setLoading(true);
     setError("");
     setMessage("");
+    
+    const requestData = { 
+      token, 
+      email, 
+      password, 
+      password_confirmation: passwordConfirmation 
+    };
+    
+    console.log("Sending password reset request:", requestData);
+    
     try {
-      const response = await fetch("http://localhost:8000/api/reset-password", {
+      const response = await fetch("/api/reset-password", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token, email, password, password_confirmation: passwordConfirmation }),
+        headers: { 
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "X-Requested-With": "XMLHttpRequest"
+        },
+        body: JSON.stringify(requestData),
       });
-      const data = await response.json();
+      
+      console.log("Response status:", response.status);
+      console.log("Response headers:", response.headers);
+      
       if (response.ok) {
+        const data = await response.json();
+        console.log("Success response:", data);
         setMessage("Password reset successful! You can now log in.");
         setTimeout(() => navigate("/login"), 2000);
       } else {
-        setError(data.message || "Error resetting password.");
+        const errorText = await response.text();
+        console.log("Error response text:", errorText);
+        
+        let errorMessage = "Error resetting password.";
+        
+        try {
+          const errorData = JSON.parse(errorText);
+          errorMessage = errorData.message || errorMessage;
+        } catch (e) {
+          // If JSON parsing fails, use the raw text
+          errorMessage = errorText || errorMessage;
+        }
+        
+        setError(errorMessage);
       }
     } catch (err) {
+      console.error("Password reset error:", err);
       setError("Network error. Please try again.");
     } finally {
       setLoading(false);
     }
   };
+
+  // Show error if missing token or email
+  if (!token || !email) {
+    return (
+      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#f5f6fa" }}>
+        <div style={{ background: "#fff", padding: "2.5rem 2rem", borderRadius: "12px", boxShadow: "0 2px 16px rgba(0,0,0,0.07)", maxWidth: 400, width: "100%" }}>
+          <h2 style={{ color: "#e74c3c", fontWeight: 700, marginBottom: 8 }}>Invalid Reset Link</h2>
+          <p style={{ color: "#555", marginBottom: 24 }}>This password reset link is invalid or has expired.</p>
+          <a href="/login" style={{ color: "#1abc60", textDecoration: "none", fontWeight: 500 }}>Back to Login</a>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#f5f6fa" }}>

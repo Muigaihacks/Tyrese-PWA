@@ -16,7 +16,7 @@ class AuthServiceProvider extends ServiceProvider
         \App\Models\LeasedUnit::class  => \App\Policies\LeasedUnitPolicy::class,
         \Spatie\Permission\Models\Role::class => \App\Policies\RolePolicy::class,
         \App\Models\Storage::class     => \App\Policies\StoragePolicy::class,
-        \App\Models\User::class        => \App\Policies\UserPolicy::class,
+        \App\Models\User::class        => \App\Policies\UserPolicy::class, // Re-enabled
         \App\Models\Visit::class       => \App\Policies\VisitPolicy::class,
     ];
 

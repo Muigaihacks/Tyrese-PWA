@@ -1,49 +1,186 @@
-import { useAuth } from '../context/AuthContext';
+import React, { useState } from "react";
+import { useAuth } from "../context/AuthContext";
 
 export default function Topbar() {
   const { user, logout } = useAuth();
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [passwordData, setPasswordData] = useState({
+    current_password: "",
+    new_password: "",
+    confirm_password: "",
+  });
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+
+  const handlePasswordChange = async (e) => {
+    e.preventDefault();
+    
+    if (passwordData.new_password !== passwordData.confirm_password) {
+      setError("New passwords do not match.");
+      return;
+    }
+
+    if (passwordData.new_password.length < 8) {
+      setError("New password must be at least 8 characters long.");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+    setMessage("");
+
+    try {
+      const response = await fetch("/api/change-password", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "X-Requested-With": "XMLHttpRequest",
+        },
+        credentials: 'include', // Include cookies for authentication
+        body: JSON.stringify(passwordData),
+      });
+
+      if (response.ok) {
+        setMessage("Password changed successfully!");
+        setPasswordData({
+          current_password: "",
+          new_password: "",
+          confirm_password: "",
+        });
+        setTimeout(() => setShowPasswordModal(false), 2000);
+      } else {
+        const errorData = await response.json();
+        setError(errorData.message || "Failed to change password.");
+      }
+    } catch (err) {
+      console.error("Password change error:", err);
+      setError("Network error. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="flex items-center justify-between bg-white h-24 py-4 px-8 shadow-sm w-full">
-      {/* Hamburger menu */}
-      <button className="mr-4 focus:outline-none">
-        <svg className="w-7 h-7 text-gray-700" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-          <line x1="4" y1="7" x2="20" y2="7" />
-          <line x1="4" y1="12" x2="20" y2="12" />
-          <line x1="4" y1="17" x2="20" y2="17" />
-        </svg>
-      </button>
-      {/* Right side actions */}
-      <div className="flex items-center">
-        <button className="mr-4">
-          {/* Search icon */}
-          <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-            <circle cx="11" cy="11" r="8" />
-            <line x1="21" y1="21" x2="16.65" y2="16.65" />
-          </svg>
-        </button>
-        <button className="mr-4">
-          {/* Notification bell */}
-          <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-            <path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-          </svg>
-        </button>
+    <>
+      <div className="bg-white shadow-sm border-b px-4 py-3 flex justify-between items-center">
         <div className="flex items-center">
-          {/* Generic avatar */}
-          <img
-            src="/images/avatar.jpg"
-            alt="Profile"
-            className="w-8 h-8 rounded-full mr-2 object-cover"
-          />
-          <span className="font-medium text-gray-700">{user?.email || "Guest"}</span>
-          <button
-            onClick={logout}
-            className="ml-4 px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
-          >
-            Logout
-          </button>
+          <div className="w-8 h-8 bg-green-500 rounded mr-3"></div>
+          <span className="font-semibold text-gray-800">SokoFresh</span>
+        </div>
+        
+        <div className="flex items-center space-x-4">
+          <span className="text-gray-600">
+            {user?.email || "Guest"}
+          </span>
+          
+          <div className="relative">
+            <button
+              onClick={() => setShowPasswordModal(true)}
+              className="text-sm text-blue-600 hover:text-blue-800 mr-3"
+            >
+              Change Password
+            </button>
+            
+            <button
+              onClick={logout}
+              className="text-sm text-red-600 hover:text-red-800"
+            >
+              Logout
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+
+      {/* Password Change Modal */}
+      {showPasswordModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+            <h3 className="text-lg font-semibold mb-4">Change Password</h3>
+            
+            {message && (
+              <div className="mb-4 p-3 bg-green-100 border border-green-400 text-green-800 rounded">
+                {message}
+              </div>
+            )}
+            
+            {error && (
+              <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-800 rounded">
+                {error}
+              </div>
+            )}
+
+            <form onSubmit={handlePasswordChange}>
+              <div className="mb-3">
+                <label className="block text-sm font-medium mb-1">
+                  Current Password
+                </label>
+                <input
+                  type="password"
+                  value={passwordData.current_password}
+                  onChange={(e) => setPasswordData({
+                    ...passwordData,
+                    current_password: e.target.value
+                  })}
+                  required
+                  className="w-full border rounded px-3 py-2"
+                />
+              </div>
+
+              <div className="mb-3">
+                <label className="block text-sm font-medium mb-1">
+                  New Password
+                </label>
+                <input
+                  type="password"
+                  value={passwordData.new_password}
+                  onChange={(e) => setPasswordData({
+                    ...passwordData,
+                    new_password: e.target.value
+                  })}
+                  required
+                  minLength={8}
+                  className="w-full border rounded px-3 py-2"
+                />
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-sm font-medium mb-1">
+                  Confirm New Password
+                </label>
+                <input
+                  type="password"
+                  value={passwordData.confirm_password}
+                  onChange={(e) => setPasswordData({
+                    ...passwordData,
+                    confirm_password: e.target.value
+                  })}
+                  required
+                  className="w-full border rounded px-3 py-2"
+                />
+              </div>
+
+              <div className="flex justify-end space-x-3">
+                <button
+                  type="button"
+                  onClick={() => setShowPasswordModal(false)}
+                  className="px-4 py-2 text-gray-600 border rounded hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400"
+                >
+                  {loading ? "Changing..." : "Change Password"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </>
   );
 } 

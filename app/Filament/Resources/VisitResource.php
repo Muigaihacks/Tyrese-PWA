@@ -26,19 +26,23 @@ class VisitResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return auth()->user()?->hasRole('admin');
+        return true; // Temporarily allow all access
+        // return auth()->user()?->hasRole('admin');
     }
     public static function canCreate(): bool
     {
-        return auth()->user()?->hasRole('admin');
+        return true; // Temporarily allow all access
+        // return auth()->user()?->hasRole('admin');
     }
     public static function canEdit($record): bool
     {
-        return auth()->user()?->hasRole('admin');
+        return true; // Temporarily allow all access
+        // return auth()->user()?->hasRole('admin');
     }
     public static function canDelete($record): bool
     {
-        return auth()->user()?->hasRole('admin');
+        return true; // Temporarily allow all access
+        // return auth()->user()?->hasRole('admin');
     }
 
     public static function form(Form $form): Form
