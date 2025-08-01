@@ -12,35 +12,36 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
-// Password change route
-Route::post('/change-password', function (Request $request) {
-    $request->validate([
-        'current_password' => 'required',
-        'new_password' => 'required|min:8|confirmed',
-    ]);
-
-    $user = Auth::user();
-    
-    if (!$user) {
-        return response()->json(['message' => 'User not authenticated.'], 401);
-    }
-
-    // Check current password
-    if (!Hash::check($request->current_password, $user->password)) {
-        return response()->json(['message' => 'Current password is incorrect.'], 400);
-    }
-
-    // Update password
-    $user->update([
-        'password' => Hash::make($request->new_password)
-    ]);
-
-    return response()->json(['message' => 'Password changed successfully!']);
-})->middleware(['auth:sanctum', 'api']);
-
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
+    });
+
+    // Password change route
+    Route::post('/change-password', function (Request $request) {
+        $request->validate([
+            'current_password' => 'required',
+            'new_password' => 'required|min:8',
+            'confirm_password' => 'required|same:new_password',
+        ]);
+
+        $user = Auth::user();
+        
+        if (!$user) {
+            return response()->json(['message' => 'User not authenticated.'], 401);
+        }
+
+        // Check current password
+        if (!Hash::check($request->current_password, $user->password)) {
+            return response()->json(['message' => 'Current password is incorrect.'], 400);
+        }
+
+        // Update password
+        $user->update([
+            'password' => Hash::make($request->new_password)
+        ]);
+
+        return response()->json(['message' => 'Password changed successfully!']);
     });
 
     Route::get('/inventories', [InventoryController::class, 'index']);

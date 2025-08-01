@@ -67,6 +67,13 @@ class VisitController extends Controller
     {
         $this->authorize('create', Visit::class);
 
+        // Debug: Log the authenticated user
+        \Log::info('Visit scheduling - Auth user:', [
+            'user_id' => auth()->id(),
+            'user_name' => auth()->user() ? auth()->user()->name : 'No user',
+            'user_email' => auth()->user() ? auth()->user()->email : 'No email'
+        ]);
+
         $validated = $request->validate([
             'unit_id' => 'required|exists:leased_units,id',
             'location' => 'required|string',

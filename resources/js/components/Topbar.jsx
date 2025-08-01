@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import axios from "axios";
 
 export default function Topbar() {
   const { user, logout } = useAuth();
@@ -31,32 +32,33 @@ export default function Topbar() {
     setMessage("");
 
     try {
-      const response = await fetch("/api/change-password", {
-        method: "POST",
+      // 1. Get CSRF cookie
+      await axios.get('/sanctum/csrf-cookie', { withCredentials: true });
+
+      // 2. Change password
+      const response = await axios.post('/api/change-password', passwordData, {
+        withCredentials: true,
         headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-          "X-Requested-With": "XMLHttpRequest",
-        },
-        credentials: 'include', // Include cookies for authentication
-        body: JSON.stringify(passwordData),
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+        }
       });
 
-      if (response.ok) {
-        setMessage("Password changed successfully!");
-        setPasswordData({
-          current_password: "",
-          new_password: "",
-          confirm_password: "",
-        });
-        setTimeout(() => setShowPasswordModal(false), 2000);
-      } else {
-        const errorData = await response.json();
-        setError(errorData.message || "Failed to change password.");
-      }
+      setMessage("Password changed successfully!");
+      setPasswordData({
+        current_password: "",
+        new_password: "",
+        confirm_password: "",
+      });
+      setTimeout(() => setShowPasswordModal(false), 2000);
     } catch (err) {
       console.error("Password change error:", err);
-      setError("Network error. Please try again.");
+      if (err.response?.data?.message) {
+        setError(err.response.data.message);
+      } else {
+        setError("Network error. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
@@ -72,7 +74,7 @@ export default function Topbar() {
         
         <div className="flex items-center space-x-4">
           <span className="text-gray-600">
-            {user?.email || "Guest"}
+            {user?.name ? user.name.split(' ')[0] : "Guest"}
           </span>
           
           <div className="relative">

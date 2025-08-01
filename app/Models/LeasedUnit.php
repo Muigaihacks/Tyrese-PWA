@@ -32,6 +32,17 @@ class LeasedUnit extends Model
         'battery_count' => 'integer',
     ];
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($leasedUnit) {
+            if (is_null($leasedUnit->leasing_fee)) {
+                $leasedUnit->leasing_fee = 0;
+            }
+        });
+    }
+
     // Relationships
     public function visits()
     {

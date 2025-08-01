@@ -21,7 +21,11 @@ const Login = () => {
       // 2. Login (POST to /login)
       await axios.post('/login', { email, password }, { withCredentials: true });
 
-      login({ email });
+      // 3. Fetch user data
+      const userResponse = await axios.get('/api/user', { withCredentials: true });
+      const userData = userResponse.data;
+
+      login(userData);
       navigate('/inventory');
     } catch (err) {
       setError('Login failed. Please check your credentials.');

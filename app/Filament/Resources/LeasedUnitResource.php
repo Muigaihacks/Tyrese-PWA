@@ -136,7 +136,9 @@ class LeasedUnitResource extends Resource
                             ->label('Leasing Fee (Ksh)')
                             ->numeric()
                             ->minValue(0)
-                            ->step(0.01),
+                            ->step(0.01)
+                            ->required()
+                            ->default(0),
                     ])->columns(3),
 
                 Section::make('Additional Information')

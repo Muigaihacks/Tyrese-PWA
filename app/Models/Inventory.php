@@ -12,6 +12,7 @@ class Inventory extends Model
         'quantity',
         'date_added',
         'condition',
+        'stock_level',
     ];
 
     protected $casts = [
@@ -20,6 +21,19 @@ class Inventory extends Model
     ];
 
     protected $appends = ['stock_level'];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($inventory) {
+            $inventory->stock_level = $inventory->getStockLevelAttribute();
+        });
+
+        static::updating(function ($inventory) {
+            $inventory->stock_level = $inventory->getStockLevelAttribute();
+        });
+    }
 
     public function inventoryLocations()
     {
@@ -33,13 +47,13 @@ class Inventory extends Model
 
     public function getStockLevelAttribute()
     {
-        $total = $this->inventoryLocations()->sum('quantity');
+        $quantity = $this->quantity ?? 0;
 
-        if ($total > 20) {
+        if ($quantity > 20) {
             return 'In Stock';
         }
 
-        if ($total > 0) {
+        if ($quantity > 0) {
             return 'Low Stock';
         }
 
