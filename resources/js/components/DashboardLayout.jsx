@@ -1,9 +1,10 @@
 import React from "react";
+import { Outlet } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import Sidebar from "./Sidebar";
 import Topbar from "./Topbar";
 
-export default function DashboardLayout({ children }) {
+export default function DashboardLayout() {
   const { user } = useAuth();
   
   // Check if this is a new user (has default password)
@@ -34,7 +35,7 @@ export default function DashboardLayout({ children }) {
         )}
         
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100">
-          {children}
+          <Outlet />
         </main>
       </div>
     </div>

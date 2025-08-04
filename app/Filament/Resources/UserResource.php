@@ -10,7 +10,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
+use Spatie\Permission\Models\Role;
 
 class UserResource extends Resource
 {
@@ -48,10 +48,7 @@ class UserResource extends Resource
                             ->label('Password (leave blank to keep current password)')
                             ->helperText('For new users, use a simple password like "password123". Users can change it after first login.'),
                         Forms\Components\Select::make('role')
-                            ->options([
-                                'admin' => 'Admin',
-                                'user' => 'User',
-                            ])
+                            ->options(Role::all()->pluck('name', 'name')->toArray())
                             ->default('user')
                             ->required(),
                         Forms\Components\Select::make('status')
@@ -95,10 +92,7 @@ class UserResource extends Resource
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('role')
-                    ->options([
-                        'admin' => 'Admin',
-                        'user' => 'User',
-                    ]),
+                    ->options(Role::all()->pluck('name', 'name')->toArray()),
                 Tables\Filters\SelectFilter::make('status')
                     ->options([
                         true => 'Active',

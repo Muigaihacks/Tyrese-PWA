@@ -7,6 +7,7 @@ use App\Http\Controllers\LocationController;
 use App\Http\Controllers\VisitController;
 use App\Http\Controllers\LeasedUnitController;
 use App\Http\Controllers\BatteryController;
+use App\Http\Controllers\CasualLabourerController;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
@@ -57,6 +58,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // Battery Management Routes
     Route::get('/batteries', [BatteryController::class, 'index']);
     Route::post('/batteries/swap', [BatteryController::class, 'swap']);
+    
+    // Casual Labourer Routes
+    Route::get('/casual-labourer/profile', [CasualLabourerController::class, 'getProfile']);
+    Route::post('/casual-labourer/profile', [CasualLabourerController::class, 'updateProfile']);
+    Route::post('/casual-labourer/time-in', [CasualLabourerController::class, 'timeIn']);
+    Route::post('/casual-labourer/time-out', [CasualLabourerController::class, 'timeOut']);
+    Route::get('/casual-labourer/attendance-history', [CasualLabourerController::class, 'getAttendanceHistory']);
 });
 
 Route::post('/forgot-password', function (Request $request) {

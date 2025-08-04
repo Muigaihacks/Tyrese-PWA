@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             RoleSeeder::class,
             PermissionSeeder::class,
+            LabourerPermissionSeeder::class, // Add labourer permissions
             LeasedUnitSeeder::class, // Create cold storage units first
             StorageSeeder::class,
             VisitSeeder::class,

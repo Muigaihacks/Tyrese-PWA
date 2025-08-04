@@ -1,43 +1,40 @@
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import DashboardLayout from './components/DashboardLayout';
+import Login from './components/Auth/Login';
+import ResetPassword from './components/Auth/ResetPassword';
+import ForgotPassword from './components/Auth/ForgotPassword';
 import Inventory from './pages/Inventory';
 import ClientStorage from './pages/ClientStorage';
 import Map from './pages/Map';
-import Insurance from './pages/Insurance';
+import CasualLabourerModule from './components/CasualLabourerModule';
 import ProtectedRoute from './components/ProtectedRoute';
-import Login from './components/Auth/Login.jsx';
-import ResetPassword from './components/Auth/ResetPassword';
-import ForgotPassword from './components/Auth/ForgotPassword';
 
-export default function App() {
+function App() {
   return (
     <Router>
       <Routes>
-        {/* Public routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/password-reset" element={<ResetPassword />} />
         <Route path="/password-reset/:token" element={<ResetPassword />} />
-
-        {/* Protected routes */}
-        <Route
-          path="/*"
-          element={
-            <ProtectedRoute>
-              <DashboardLayout>
-                <Routes>
-                  <Route path="/inventory" element={<Inventory />} />
-                  <Route path="/storage" element={<ClientStorage />} />
-                  <Route path="/map" element={<Map />} />
-                  <Route path="/insurance" element={<Insurance />} />
-                  <Route path="*" element={<Navigate to="/inventory" replace />} />
-                </Routes>
-              </DashboardLayout>
-            </ProtectedRoute>
-          }
-        />
+        
+        <Route path="/" element={
+          <ProtectedRoute>
+            <DashboardLayout />
+          </ProtectedRoute>
+        }>
+          <Route index element={<Inventory />} />
+          <Route path="inventory" element={<Inventory />} />
+          <Route path="storage" element={<ClientStorage />} />
+          <Route path="map" element={<Map />} />
+          <Route path="client-storage" element={<ClientStorage />} />
+          <Route path="casual-labourer" element={<CasualLabourerModule />} />
+        </Route>
       </Routes>
     </Router>
   );
 }
+
+export default App;
 

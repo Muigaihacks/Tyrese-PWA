@@ -43,6 +43,11 @@ class InsuranceResource extends Resource
         // return auth()->user()?->hasRole('admin');
     }
 
+    public static function shouldRegisterNavigation(): bool
+    {
+        return false; // Hide from navigation since it's replaced by Casual Labourer system
+    }
+
     public static function form(\Filament\Forms\Form $form): \Filament\Forms\Form
     {
         return $form

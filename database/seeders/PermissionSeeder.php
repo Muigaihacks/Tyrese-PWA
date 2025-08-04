@@ -19,10 +19,6 @@ class PermissionSeeder extends Seeder
             ['name' => 'create storage', 'group' => 'Admin'],
             ['name' => 'edit storage', 'group' => 'Admin'],
             ['name' => 'delete storage', 'group' => 'Admin'],
-            ['name' => 'view insurance', 'group' => 'Admin'],
-            ['name' => 'create insurance', 'group' => 'Admin'],
-            ['name' => 'edit insurance', 'group' => 'Admin'],
-            ['name' => 'delete insurance', 'group' => 'Admin'],
             ['name' => 'view leased units', 'group' => 'Admin'],
             ['name' => 'create leased unit', 'group' => 'Admin'],
             ['name' => 'edit leased unit', 'group' => 'Admin'],
@@ -44,7 +40,6 @@ class PermissionSeeder extends Seeder
             ['name' => 'create storage', 'group' => 'User'],
             ['name' => 'view map', 'group' => 'User'],
             ['name' => 'schedule maintenance visit', 'group' => 'User'],
-            ['name' => 'create insurance', 'group' => 'User'],
         ];
 
         foreach ($permissions as $perm) {
