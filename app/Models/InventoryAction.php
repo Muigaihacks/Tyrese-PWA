@@ -11,7 +11,7 @@ class InventoryAction extends Model
 
     protected $fillable = [
         'inventory_id',
-        'location_id',
+        'location_id', // This is now nullable
         'user_id',
         'visit_id',
         'action_type',

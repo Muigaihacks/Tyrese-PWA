@@ -19,16 +19,51 @@ const Login = () => {
       await axios.get('/sanctum/csrf-cookie', { withCredentials: true });
 
       // 2. Login (POST to /login)
-      await axios.post('/login', { email, password }, { withCredentials: true });
+      const loginResponse = await axios.post('/login', { email, password }, { withCredentials: true });
+      
+      // Check if login was successful
+      if (loginResponse.status !== 200 && loginResponse.status !== 204) {
+        throw new Error('Login failed');
+      }
 
-      // 3. Fetch user data
+      // 3. Fetch user data only if login was successful
       const userResponse = await axios.get('/api/user', { withCredentials: true });
       const userData = userResponse.data;
 
-      login(userData);
-      navigate('/inventory');
+      // 4. Only login and navigate if we have valid user data
+      if (userData && userData.id) {
+        login(userData);
+        navigate('/inventory');
+      } else {
+        throw new Error('Invalid user data received');
+      }
     } catch (err) {
-      setError('Login failed. Please check your credentials.');
+      console.error('Login error:', err);
+      
+      // Handle different types of errors
+      if (err.response) {
+        // Server responded with error status
+        if (err.response.status === 422) {
+          // Validation error (wrong credentials)
+          setError('Invalid email or password. Please check your credentials.');
+        } else if (err.response.status === 429) {
+          // Rate limiting
+          setError('Too many login attempts. Please try again later.');
+        } else if (err.response.status === 419) {
+          // CSRF token error
+          setError('Session expired. Please refresh the page and try again.');
+        } else {
+          setError('Login failed. Please try again.');
+        }
+      } else if (err.request) {
+        // Network error
+        setError('Network error. Please check your connection and try again.');
+      } else {
+        // Other errors
+        setError('Login failed. Please check your credentials.');
+      }
+      
+      // Don't navigate or call login() on error
     }
   };
 
@@ -75,7 +110,6 @@ const Login = () => {
             </div>
             <button type="submit" className="w-full bg-green-500 text-white p-2 rounded-lg">Login</button>
             {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
-            <p className="text-center text-sm text-yellow-500 mt-4">Not registered yet? <a href="#" className="text-yellow-700">Create a new account</a></p>
           </form>
         </div>
         <div className="w-1/2 p-6">

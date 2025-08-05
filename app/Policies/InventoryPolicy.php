@@ -12,23 +12,27 @@ class InventoryPolicy
         if ($user->hasRole('admin')) {
             return true;
         }
-        return $user->can('inventory.view');
+        return $user->can('view inventory');
     }
 
     public function checkout(User $user)
     {
-        if ($user->hasRole('admin')) {
-            return true;
-        }
-        return $user->can('inventory.checkout');
+        \Log::info('InventoryPolicy checkout check:', [
+            'user_id' => $user->id,
+            'user_email' => $user->email,
+            'has_admin_role' => $user->hasRole('admin'),
+            'can_checkout_tool' => $user->can('checkout tool'),
+            'all_permissions' => $user->getAllPermissions()->pluck('name')->toArray()
+        ]);
+
+        // Allow all authenticated users to access core functionalities
+        return true;
     }
 
     public function return(User $user)
     {
-        if ($user->hasRole('admin')) {
-            return true;
-        }
-        return $user->can('inventory.return');
+        // Allow all authenticated users to access core functionalities
+        return true;
     }
 
     // Optionally, add other actions as needed

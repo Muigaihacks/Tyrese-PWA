@@ -50,4 +50,19 @@ class User extends Authenticatable
     {
         $this->notify(new CustomResetPassword($token));
     }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::saved(function ($user) {
+            if ($user->role && $user->role !== 'admin') {
+                // Remove all existing roles first
+                $user->syncRoles([]);
+                
+                // Assign the new role
+                $user->assignRole($user->role);
+            }
+        });
+    }
 }

@@ -36,6 +36,8 @@ class LabourerPermissionSeeder extends Seeder
             'view_inventory',
             'view_storage',
             'view_map',
+            'checkout tool',
+            'return tool',
         ];
 
         foreach ($basicPermissions as $permission) {

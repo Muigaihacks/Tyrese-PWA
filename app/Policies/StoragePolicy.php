@@ -7,15 +7,13 @@ use App\Models\Storage;
 
 class StoragePolicy
 {
-    public function viewAny(User $user)    { return $user->hasRole('admin'); }
-    public function view(User $user, Storage $storage) { return $user->hasRole('admin'); }
+    public function viewAny(User $user)    { return true; } // Allow all users
+    public function view(User $user, Storage $storage) { return true; } // Allow all users
     public function create(User $user)
     {
-        if ($user->hasRole('admin')) {
-            return true;
-        }
-        return $user->can('storage.create');
+        // Allow all authenticated users to access core functionalities
+        return true;
     }
-    public function update(User $user, Storage $storage) { return $user->hasRole('admin'); }
-    public function delete(User $user, Storage $storage) { return $user->hasRole('admin'); }
+    public function update(User $user, Storage $storage) { return true; } // Allow all users
+    public function delete(User $user, Storage $storage) { return true; } // Allow all users
 } 

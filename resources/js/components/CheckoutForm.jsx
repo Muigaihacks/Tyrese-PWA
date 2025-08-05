@@ -12,6 +12,7 @@ export default function CheckoutForm() {
     quantity: "",
     condition_before: "",
     notes: "",
+    action_type: "checkout",
   });
   const [loading, setLoading] = useState(true);
   const [success, setSuccess] = useState(null);
@@ -51,6 +52,7 @@ export default function CheckoutForm() {
         quantity: "",
         condition_before: "",
         notes: "",
+        action_type: "checkout",
       });
       
       // Auto-reload the page after 2 seconds

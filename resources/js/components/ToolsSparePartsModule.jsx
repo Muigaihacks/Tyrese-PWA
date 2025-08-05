@@ -67,7 +67,6 @@ export default function ToolsSparePartsModule() {
         ...form,
         items_data: itemsData,
         action_type: 'tools',
-        location_id: 1, // Default to Kibiku (assuming Kibiku has ID 1)
       });
       
       setSuccess("Tools & Spare Parts checkout successful! Page will reload in 2 seconds...");
@@ -189,9 +188,13 @@ export default function ToolsSparePartsModule() {
                         <input
                           type="number"
                           min="1"
-                          max={item.quantity}
-                          value={item.quantity}
-                          onChange={(e) => handleItemChange(item.id, 'quantity', parseInt(e.target.value))}
+                          max={Number(item.quantity) || ""}
+                          value={item.quantity || ""}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            const numValue = value === "" ? "" : parseInt(value) || 1;
+                            handleItemChange(item.id, 'quantity', numValue);
+                          }}
                           className="w-full border rounded px-2 py-1 text-sm"
                         />
                       </div>
