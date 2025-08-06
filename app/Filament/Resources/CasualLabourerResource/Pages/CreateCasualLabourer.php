@@ -10,8 +10,8 @@ class CreateCasualLabourer extends CreateRecord
 {
     protected static string $resource = CasualLabourerResource::class;
 
-    protected function hasCreateAnother(): bool
+    public static function canCreateAnother(): bool
     {
-        return false; // Disable the create another functionality
+        return false;
     }
 }

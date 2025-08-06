@@ -18,32 +18,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
         return $request->user();
     });
 
-    // Password change route
-    Route::post('/change-password', function (Request $request) {
-        $request->validate([
-            'current_password' => 'required',
-            'new_password' => 'required|min:8',
-            'confirm_password' => 'required|same:new_password',
-        ]);
-
-        $user = Auth::user();
-        
-        if (!$user) {
-            return response()->json(['message' => 'User not authenticated.'], 401);
-        }
-
-        // Check current password
-        if (!Hash::check($request->current_password, $user->password)) {
-            return response()->json(['message' => 'Current password is incorrect.'], 400);
-        }
-
-        // Update password
-        $user->update([
-            'password' => Hash::make($request->new_password)
-        ]);
-
-        return response()->json(['message' => 'Password changed successfully!']);
-    });
+    // Password management routes
+    Route::post('/change-password', [\App\Http\Controllers\PasswordController::class, 'changePassword']);
+    Route::get('/password-change-status', [\App\Http\Controllers\PasswordController::class, 'getPasswordChangeStatus']);
 
     Route::get('/inventories', [InventoryController::class, 'index']);
     Route::get('/locations/dropdown', [LocationController::class, 'dropdown']);

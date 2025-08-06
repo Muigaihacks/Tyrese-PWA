@@ -202,19 +202,29 @@ class CasualLabourerResource extends Resource
                     ->label('Hours Today')
                     ->getStateUsing(function ($record) {
                         $todayAttendance = $record->attendance()->where('work_date', today())->first();
-                        if ($todayAttendance && $todayAttendance->total_hours_decimal) {
-                            return number_format($todayAttendance->total_hours_decimal, 1) . 'h';
+                        if ($todayAttendance && $todayAttendance->time_in && $todayAttendance->time_out) {
+                            $start = \Carbon\Carbon::parse($todayAttendance->time_in);
+                            $end = \Carbon\Carbon::parse($todayAttendance->time_out);
+                            $diff = $start->diffInMinutes($end);
+                            return number_format($diff / 60, 1) . 'h';
                         }
                         return '-';
                     }),
                 TextColumn::make('total_hours_month')
                     ->label('Hours This Month')
                     ->getStateUsing(function ($record) {
-                        $totalHours = $record->attendance()
+                        $totalMinutes = $record->attendance()
                             ->whereMonth('work_date', now()->month)
                             ->whereYear('work_date', now()->year)
-                            ->sum('total_hours_decimal');
-                        return number_format($totalHours, 1) . 'h';
+                            ->whereNotNull('time_in')
+                            ->whereNotNull('time_out')
+                            ->get()
+                            ->sum(function($att) {
+                                $start = \Carbon\Carbon::parse($att->time_in);
+                                $end = \Carbon\Carbon::parse($att->time_out);
+                                return $start->diffInMinutes($end);
+                            });
+                        return number_format($totalMinutes / 60, 1) . 'h';
                     }),
                 IconColumn::make('health_declaration')
                     ->label('Health')

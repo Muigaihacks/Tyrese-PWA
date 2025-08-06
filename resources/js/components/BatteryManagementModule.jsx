@@ -200,6 +200,7 @@ export default function BatteryManagementModule() {
                 className="block w-full border rounded p-2"
               >
                 <option value="">Select source unit</option>
+                <option value="kibiku">KIBIKU</option>
                 {coldStorageUnits.map(unit => (
                   <option key={unit.id} value={unit.id}>
                     {unit.name} - {unit.address}
@@ -218,6 +219,7 @@ export default function BatteryManagementModule() {
                 className="block w-full border rounded p-2"
               >
                 <option value="">Select destination unit</option>
+                <option value="kibiku">KIBIKU</option>
                 {coldStorageUnits.map(unit => (
                   <option key={unit.id} value={unit.id}>
                     {unit.name} - {unit.address}

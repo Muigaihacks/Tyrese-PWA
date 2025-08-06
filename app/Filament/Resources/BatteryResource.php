@@ -65,7 +65,10 @@ class BatteryResource extends Resource
                             ->unique(ignoreRecord: true),
                         Select::make('cold_storage_unit_id')
                             ->label('Cold Storage Unit')
-                            ->relationship('coldStorageUnit', 'name')
+                            ->options(function () {
+                                $units = \App\Models\LeasedUnit::pluck('name', 'id')->toArray();
+                                return ['kibiku' => 'KIBIKU'] + $units;
+                            })
                             ->searchable()
                             ->required(),
                         Select::make('condition')

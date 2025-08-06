@@ -69,6 +69,12 @@ class InventoryActionsRelationManager extends RelationManager
                 \Filament\Tables\Columns\TextColumn::make('visit.id')->label('Visit ID'),
                 \Filament\Tables\Columns\TextColumn::make('condition_before')->label('Condition Before'),
                 \Filament\Tables\Columns\TextColumn::make('condition_after')->label('Condition After'),
+                \Filament\Tables\Columns\TextColumn::make('notes')
+                    ->label('Specific Items')
+                    ->limit(50)
+                    ->tooltip(function ($record) {
+                        return $record->notes ? $record->notes : 'No specific details provided';
+                    }),
                 \Filament\Tables\Columns\TextColumn::make('created_at')->label('Date')->dateTime(),
             ]);
     }

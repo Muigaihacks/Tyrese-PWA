@@ -80,13 +80,9 @@ class CasualLabourerController extends Controller
             'notes' => $request->notes ? $todayAttendance->notes . "\n" . $request->notes : $todayAttendance->notes,
         ]);
 
-        // Calculate total hours
-        $todayAttendance->calculateTotalHours();
-
         return response()->json([
             'message' => 'Successfully clocked out',
             'time_out' => $todayAttendance->time_out,
-            'total_hours' => $todayAttendance->getFormattedTotalHours()
         ]);
     }
 

@@ -51,17 +51,46 @@ class User extends Authenticatable
         $this->notify(new CustomResetPassword($token));
     }
 
+    public function passwordChangeLogs()
+    {
+        return $this->hasMany(PasswordChangeLog::class);
+    }
+
+    public function canChangePassword()
+    {
+        $monthlyChanges = PasswordChangeLog::getMonthlyCount($this->id);
+        return $monthlyChanges < 3; // Maximum 3 changes per month
+    }
+
+    public function getRemainingPasswordChanges()
+    {
+        $monthlyChanges = PasswordChangeLog::getMonthlyCount($this->id);
+        return max(0, 3 - $monthlyChanges);
+    }
+
     protected static function boot()
     {
         parent::boot();
 
         static::saved(function ($user) {
-            if ($user->role && $user->role !== 'admin') {
+            if ($user->role) {
                 // Remove all existing roles first
                 $user->syncRoles([]);
                 
-                // Assign the new role
-                $user->assignRole($user->role);
+                // Ensure the role exists for both web and sanctum guards
+                $webRole = \Spatie\Permission\Models\Role::firstOrCreate([
+                    'name' => $user->role,
+                    'guard_name' => 'web'
+                ]);
+                
+                $sanctumRole = \Spatie\Permission\Models\Role::firstOrCreate([
+                    'name' => $user->role,
+                    'guard_name' => 'sanctum'
+                ]);
+                
+                // Assign both roles to ensure compatibility
+                $user->assignRole($webRole);
+                $user->assignRole($sanctumRole);
             }
         });
     }

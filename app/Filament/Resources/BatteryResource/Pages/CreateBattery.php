@@ -10,8 +10,8 @@ class CreateBattery extends CreateRecord
 {
     protected static string $resource = BatteryResource::class;
 
-    protected function hasCreateAnother(): bool
+    public static function canCreateAnother(): bool
     {
-        return false; // Disable the create another functionality
+        return false;
     }
 }

@@ -80,7 +80,7 @@ export default function CasualLabourerModule() {
         withCredentials: true,
       });
       
-      setMessage(`Successfully clocked out! Total hours: ${response.data.total_hours}`);
+      setMessage(`Successfully clocked out!`);
       setTodayAttendance(prev => ({
         ...prev,
         time_out: response.data.time_out,
@@ -103,6 +103,31 @@ export default function CasualLabourerModule() {
       setAttendanceHistory(response.data.attendance);
     } catch (err) {
       setError('Failed to load attendance history');
+    }
+  };
+
+  const formatTime = (timeString) => {
+    if (!timeString) return '-';
+    try {
+      // If it's a full datetime string, extract just the time
+      if (timeString.includes('T')) {
+        return new Date(timeString).toLocaleTimeString();
+      }
+      // If it's just a time string, format it
+      return timeString;
+    } catch (error) {
+      console.error('Error formatting time:', timeString, error);
+      return timeString || '-';
+    }
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return '-';
+    try {
+      return new Date(dateString).toLocaleDateString();
+    } catch (error) {
+      console.error('Error formatting date:', dateString, error);
+      return dateString || '-';
     }
   };
 
@@ -218,7 +243,7 @@ export default function CasualLabourerModule() {
           <div className="space-y-4">
             <div className="bg-blue-50 p-4 rounded border">
               <p className="text-blue-800">
-                <strong>Clocked in at:</strong> {new Date(todayAttendance.time_in).toLocaleTimeString()}
+                <strong>Clocked in at:</strong> {formatTime(todayAttendance.time_in)}
                 {todayAttendance.job_description && (
                   <span className="block mt-1">
                     <strong>Job:</strong> {todayAttendance.job_description}
@@ -253,9 +278,8 @@ export default function CasualLabourerModule() {
           <div className="bg-green-50 p-4 rounded border">
             <p className="text-green-800">
               <strong>Completed for today</strong><br />
-              <strong>Time in:</strong> {new Date(todayAttendance.time_in).toLocaleTimeString()}<br />
-              <strong>Time out:</strong> {new Date(todayAttendance.time_out).toLocaleTimeString()}<br />
-              <strong>Total hours:</strong> {todayAttendance.total_hours_decimal ? `${todayAttendance.total_hours_decimal}h` : 'Calculating...'}
+              <strong>Time in:</strong> {formatTime(todayAttendance.time_in)}<br />
+              <strong>Time out:</strong> {formatTime(todayAttendance.time_out)}<br />
             </p>
           </div>
         )}
@@ -326,22 +350,18 @@ export default function CasualLabourerModule() {
                   <th className="px-4 py-2 text-left">Date</th>
                   <th className="px-4 py-2 text-left">Time In</th>
                   <th className="px-4 py-2 text-left">Time Out</th>
-                  <th className="px-4 py-2 text-left">Hours</th>
                   <th className="px-4 py-2 text-left">Job</th>
                 </tr>
               </thead>
               <tbody>
                 {attendanceHistory.map((record) => (
                   <tr key={record.id} className="border-b">
-                    <td className="px-4 py-2">{new Date(record.work_date).toLocaleDateString()}</td>
+                    <td className="px-4 py-2">{formatDate(record.work_date)}</td>
                     <td className="px-4 py-2">
-                      {record.time_in ? new Date(record.time_in).toLocaleTimeString() : '-'}
+                      {record.time_in ? formatTime(record.time_in) : '-'}
                     </td>
                     <td className="px-4 py-2">
-                      {record.time_out ? new Date(record.time_out).toLocaleTimeString() : '-'}
-                    </td>
-                    <td className="px-4 py-2">
-                      {record.total_hours_decimal ? `${record.total_hours_decimal}h` : '-'}
+                      {record.time_out ? formatTime(record.time_out) : '-'}
                     </td>
                     <td className="px-4 py-2">{record.job_description || '-'}</td>
                   </tr>

@@ -40,34 +40,15 @@ class AttendanceRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('work_date')
             ->columns([
-                TextColumn::make('work_date')
-                    ->label('Date')
-                    ->date()
-                    ->sortable(),
-                TextColumn::make('time_in')
-                    ->label('Time In')
-                    ->time()
-                    ->sortable(),
-                TextColumn::make('time_out')
-                    ->label('Time Out')
-                    ->time()
-                    ->sortable(),
-                TextColumn::make('total_hours_decimal')
-                    ->label('Total Hours')
-                    ->formatStateUsing(fn ($state) => $state ? number_format($state, 1) . 'h' : '-')
-                    ->sortable(),
-                TextColumn::make('job_description')
-                    ->label('Job Description')
-                    ->limit(30),
+                TextColumn::make('work_date')->label('Date')->date()->sortable(),
+                TextColumn::make('time_in')->label('Time In')->time()->sortable(),
+                TextColumn::make('time_out')->label('Time Out')->time()->sortable(),
+                TextColumn::make('job_description')->label('Job Description')->limit(30),
                 BadgeColumn::make('status')
                     ->label('Status')
                     ->getStateUsing(function ($record) {
-                        if (!$record->time_in) {
-                            return 'Not Started';
-                        }
-                        if ($record->time_in && !$record->time_out) {
-                            return 'In Progress';
-                        }
+                        if (!$record->time_in) { return 'Not Started'; }
+                        if ($record->time_in && !$record->time_out) { return 'In Progress'; }
                         return 'Completed';
                     })
                     ->colors([
