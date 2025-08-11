@@ -16,11 +16,8 @@ class AdminDashboardStats extends BaseWidget
             ->havingRaw("MAX(action_type) = 'checkout'")
             ->count();
 
-        $leasedUnitsRevenue = LeasedUnit::sum('leasing_fee');
-
         return [
             Card::make('Tools Currently Checked Out', $toolsCheckedOut),
-            Card::make('Total Leased Units Revenue', 'Ksh ' . number_format($leasedUnitsRevenue)),
         ];
     }
 
