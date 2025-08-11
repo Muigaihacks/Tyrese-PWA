@@ -187,25 +187,21 @@ class InventoryResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return true; // Temporarily allow all access
-        // return auth()->user()?->hasRole('admin');
+        return auth()->user()?->hasRole('admin') ?? false;
     }
 
     public static function canCreate(): bool
     {
-        return true; // Temporarily allow all access
-        // return auth()->user()?->hasRole('admin');
+        return auth()->user()?->hasRole('admin') ?? false;
     }
 
     public static function canEdit($record): bool
     {
-        return true; // Temporarily allow all access
-        // return auth()->user()?->hasRole('admin');
+        return auth()->user()?->hasRole('admin') ?? false;
     }
 
     public static function canDelete($record): bool
     {
-        return true; // Temporarily allow all access
-        // return auth()->user()?->hasRole('admin');
+        return auth()->user()?->hasRole('admin') ?? false;
     }
 }

@@ -47,6 +47,6 @@
          * @var array<string, class-string|string>
          */
         protected $routeMiddleware = [
-            // Custom middleware
+            'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
         ];
     }

@@ -30,7 +30,11 @@ export default function CasualLabourerModule() {
         withCredentials: true,
       });
       console.log('Profile response:', response.data);
-      setProfile(response.data.labourer);
+      // Include the is_fully_compliant field in the profile object
+      setProfile({
+        ...response.data.labourer,
+        is_fully_compliant: response.data.is_fully_compliant
+      });
       setTodayAttendance(response.data.today_attendance);
       
     } catch (err) {
