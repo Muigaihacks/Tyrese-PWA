@@ -33,6 +33,12 @@ class InventoryResource extends Resource
 
     protected static ?string $navigationGroup = 'Inventory Management';
 
+    // Add this method to ensure the resource is visible
+    public static function shouldRegisterNavigation(): bool
+    {
+        return true;
+    }
+
     public static function form(Form $form): Form
     {
         return $form
@@ -187,21 +193,21 @@ class InventoryResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return auth()->user()?->hasRole('admin') ?? false;
+        return true; // Allow all authenticated users to view
     }
 
     public static function canCreate(): bool
     {
-        return auth()->user()?->hasRole('admin') ?? false;
+        return true; // Allow all authenticated users to create
     }
 
     public static function canEdit($record): bool
     {
-        return auth()->user()?->hasRole('admin') ?? false;
+        return true; // Allow all authenticated users to edit
     }
 
     public static function canDelete($record): bool
     {
-        return auth()->user()?->hasRole('admin') ?? false;
+        return true; // Allow all authenticated users to delete
     }
 }
