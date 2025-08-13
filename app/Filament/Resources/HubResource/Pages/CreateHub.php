@@ -9,4 +9,9 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateHub extends CreateRecord
 {
     protected static string $resource = HubResource::class;
+
+    public static function canCreateAnother(): bool
+    {
+        return false;
+    }
 }

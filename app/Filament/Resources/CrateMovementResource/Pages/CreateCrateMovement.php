@@ -9,4 +9,9 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateCrateMovement extends CreateRecord
 {
     protected static string $resource = CrateMovementResource::class;
+
+    public static function canCreateAnother(): bool
+    {
+        return false;
+    }
 }

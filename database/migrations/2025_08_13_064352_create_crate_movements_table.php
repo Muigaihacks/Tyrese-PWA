@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('from_hub_id')->constrained('hubs')->onDelete('cascade');
             $table->foreignId('to_hub_id')->constrained('hubs')->onDelete('cascade');
             $table->integer('crate_count')->default(0);
-            $table->enum('scale_type', ['digital_scale', 'analog_scale', 'hanging_scale', 'platform_scale'])->nullable();
+            $table->enum('scale_type', ['platform_scale', 'field_scale', 'kitchen_scale', 'crane_scale'])->nullable();
             $table->text('notes')->nullable();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('visit_id')->nullable()->constrained('visits')->onDelete('set null');

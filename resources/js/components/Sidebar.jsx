@@ -1,13 +1,12 @@
 import { NavLink } from 'react-router-dom';
-import { FaBox, FaWarehouse, FaMapMarkedAlt, FaUsers, FaBatteryHalf, FaTruck } from 'react-icons/fa';
+import { FaBox, FaWarehouse, FaMapMarkedAlt, FaUsers, FaBoxes } from 'react-icons/fa';
 
 const navItems = [
   { name: 'Inventory', path: '/inventory', icon: <FaBox size={24} /> },
   { name: 'Storage', path: '/storage', icon: <FaWarehouse size={24} /> },
   { name: 'Map', path: '/map', icon: <FaMapMarkedAlt size={24} /> },
   { name: 'Labourer', path: '/casual-labourer', icon: <FaUsers size={24} /> },
-  { name: 'Battery', path: '/battery', icon: <FaBatteryHalf size={24} /> },
-  { name: 'Crate Tracker', path: '/crate-tracker', icon: <FaTruck size={24} /> },
+  { name: 'Crate Tracker', path: '/crate-tracker', icon: <FaBoxes size={24} /> },
 ];
 
 export default function Sidebar() {

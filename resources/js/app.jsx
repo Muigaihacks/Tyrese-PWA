@@ -8,7 +8,6 @@ import Inventory from './pages/Inventory';
 import ClientStorage from './pages/ClientStorage';
 import Map from './pages/Map';
 import CasualLabourerModule from './components/CasualLabourerModule';
-import BatteryManagementModule from './components/BatteryManagementModule';
 import CrateTrackerModule from './components/CrateTrackerModule';
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -32,7 +31,6 @@ function App() {
           <Route path="map" element={<Map />} />
           <Route path="client-storage" element={<ClientStorage />} />
           <Route path="casual-labourer" element={<CasualLabourerModule />} />
-          <Route path="battery" element={<BatteryManagementModule />} />
           <Route path="crate-tracker" element={<CrateTrackerModule />} />
         </Route>
       </Routes>

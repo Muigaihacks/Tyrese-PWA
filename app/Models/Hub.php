@@ -21,11 +21,6 @@ class Hub extends Model
         'is_kibiku' => 'boolean',
     ];
 
-    public function coldStorageUnits()
-    {
-        return $this->hasMany(ColdStorageUnit::class);
-    }
-
     public function crateMovements()
     {
         return $this->hasMany(CrateMovement::class, 'from_hub_id');

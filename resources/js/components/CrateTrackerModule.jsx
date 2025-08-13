@@ -3,9 +3,7 @@ import axios from "axios";
 
 export default function CrateTrackerModule() {
   const [hubs, setHubs] = useState([]);
-  const [coldStorageUnits, setColdStorageUnits] = useState([]);
   const [movements, setMovements] = useState([]);
-  const [visits, setVisits] = useState([]);
   const [loading, setLoading] = useState(true);
   const [success, setSuccess] = useState(null);
   const [error, setError] = useState(null);
@@ -14,15 +12,11 @@ export default function CrateTrackerModule() {
     to_hub_id: "",
     crate_count: "",
     scale_type: "",
+    scale_count: "",
     notes: "",
-    visit_id: "",
   });
 
-  const [coldStorageForm, setColdStorageForm] = useState({
-    unit_id: "",
-    crate_count: "",
-    description: "",
-  });
+
 
   useEffect(() => {
     loadData();
@@ -31,17 +25,13 @@ export default function CrateTrackerModule() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [hubsRes, unitsRes, movementsRes, visitsRes] = await Promise.all([
+      const [hubsRes, movementsRes] = await Promise.all([
         axios.get("/api/crate-tracker/hubs"),
-        axios.get("/api/crate-tracker/cold-storage-units"),
         axios.get("/api/crate-tracker/movements"),
-        axios.get("/api/visits/dropdown"),
       ]);
 
       setHubs(hubsRes.data);
-      setColdStorageUnits(unitsRes.data);
       setMovements(movementsRes.data);
-      setVisits(visitsRes.data);
     } catch (err) {
       setError("Failed to load data.");
     } finally {
@@ -72,8 +62,8 @@ export default function CrateTrackerModule() {
         to_hub_id: "",
         crate_count: "",
         scale_type: "",
+        scale_count: "",
         notes: "",
-        visit_id: "",
       });
       
       setTimeout(() => {
@@ -84,47 +74,16 @@ export default function CrateTrackerModule() {
     }
   };
 
-  const handleColdStorageSubmit = async (e) => {
-    e.preventDefault();
-    setSuccess(null);
-    setError(null);
-
-    if (!coldStorageForm.unit_id || !coldStorageForm.crate_count) {
-      setError("Please fill in all required fields.");
-      return;
-    }
-
-    try {
-      await axios.post("/api/crate-tracker/cold-storage-unit", coldStorageForm);
-      setSuccess("Cold storage unit updated successfully! Page will reload in 2 seconds...");
-      setColdStorageForm({
-        unit_id: "",
-        crate_count: "",
-        description: "",
-      });
-      
-      setTimeout(() => {
-        window.location.reload();
-      }, 2000);
-    } catch (err) {
-      setError(err.response?.data?.error || "Failed to update cold storage unit.");
-    }
-  };
-
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleColdStorageChange = (e) => {
-    setColdStorageForm({ ...coldStorageForm, [e.target.name]: e.target.value });
-  };
-
   const getScaleTypeLabel = (type) => {
     const types = {
-      digital_scale: "Digital Scale",
-      analog_scale: "Analog Scale",
-      hanging_scale: "Hanging Scale",
       platform_scale: "Platform Scale",
+      field_scale: "Field Scale",
+      kitchen_scale: "Kitchen Scale",
+      crane_scale: "Crane Scale",
     };
     return types[type] || type;
   };
@@ -140,7 +99,7 @@ export default function CrateTrackerModule() {
       {error && <div className="text-red-500 mb-4">{error}</div>}
       {success && <div className="text-green-500 mb-4">{success}</div>}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="max-w-2xl mx-auto">
         {/* Movement Form */}
         <div className="bg-white p-6 rounded-lg shadow">
           <h3 className="text-lg font-semibold mb-4">Record Crate Movement</h3>
@@ -212,30 +171,26 @@ export default function CrateTrackerModule() {
                   className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                 >
                   <option value="">No scale movement</option>
-                  <option value="digital_scale">Digital Scale</option>
-                  <option value="analog_scale">Analog Scale</option>
-                  <option value="hanging_scale">Hanging Scale</option>
                   <option value="platform_scale">Platform Scale</option>
+                  <option value="field_scale">Field Scale</option>
+                  <option value="kitchen_scale">Kitchen Scale</option>
+                  <option value="crane_scale">Crane Scale</option>
                 </select>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Visit (Optional)
+                  Number of Scales
                 </label>
-                <select
-                  name="visit_id"
-                  value={form.visit_id}
+                <input
+                  type="number"
+                  name="scale_count"
+                  value={form.scale_count}
                   onChange={handleChange}
+                  min="0"
                   className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                >
-                  <option value="">No visit</option>
-                  {visits.map((visit) => (
-                    <option key={visit.id} value={visit.id}>
-                      Visit {visit.id} - {visit.leased_unit?.name}
-                    </option>
-                  ))}
-                </select>
+                  placeholder="Number of scales being moved"
+                />
               </div>
 
               <div>
@@ -260,85 +215,6 @@ export default function CrateTrackerModule() {
               </button>
             </div>
           </form>
-        </div>
-
-        {/* Cold Storage Units Form (Kibiku Only) */}
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-lg font-semibold mb-4">Kibiku Cold Storage Units</h3>
-          <form onSubmit={handleColdStorageSubmit}>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Unit ID *
-                </label>
-                <input
-                  type="text"
-                  name="unit_id"
-                  value={coldStorageForm.unit_id}
-                  onChange={handleColdStorageChange}
-                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="e.g., CS001, CS002"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Crate Count *
-                </label>
-                <input
-                  type="number"
-                  name="crate_count"
-                  value={coldStorageForm.crate_count}
-                  onChange={handleColdStorageChange}
-                  min="0"
-                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Description
-                </label>
-                <textarea
-                  name="description"
-                  value={coldStorageForm.description}
-                  onChange={handleColdStorageChange}
-                  rows="2"
-                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Unit description..."
-                />
-              </div>
-
-              <button
-                type="submit"
-                className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors"
-              >
-                Update Cold Storage Unit
-              </button>
-            </div>
-          </form>
-
-          {/* Cold Storage Units List */}
-          <div className="mt-6">
-            <h4 className="text-md font-semibold mb-3">Current Cold Storage Units</h4>
-            {coldStorageUnits.length > 0 ? (
-              <div className="space-y-2">
-                {coldStorageUnits.map((unit) => (
-                  <div key={unit.id} className="bg-gray-50 p-3 rounded">
-                    <div className="font-medium">Unit {unit.unit_id}</div>
-                    <div className="text-sm text-gray-600">
-                      Crates: {unit.crate_count}
-                      {unit.description && ` • ${unit.description}`}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-gray-500 text-sm">No cold storage units configured yet.</p>
-            )}
-          </div>
         </div>
       </div>
 
@@ -365,13 +241,14 @@ export default function CrateTrackerModule() {
             <table className="min-w-full">
               <thead>
                 <tr className="border-b">
-                  <th className="text-left py-2">Date</th>
-                  <th className="text-left py-2">From</th>
-                  <th className="text-left py-2">To</th>
-                  <th className="text-left py-2">Crates</th>
-                  <th className="text-left py-2">Scale</th>
-                  <th className="text-left py-2">User</th>
-                  <th className="text-left py-2">Notes</th>
+                                     <th className="text-left py-2">Date</th>
+                   <th className="text-left py-2">From</th>
+                   <th className="text-left py-2">To</th>
+                   <th className="text-left py-2">Crates</th>
+                   <th className="text-left py-2">Scale</th>
+                   <th className="text-left py-2">Scale Count</th>
+                   <th className="text-left py-2">User</th>
+                   <th className="text-left py-2">Notes</th>
                 </tr>
               </thead>
               <tbody>
@@ -383,16 +260,17 @@ export default function CrateTrackerModule() {
                     <td className="py-2 font-medium">{movement.from_hub?.name}</td>
                     <td className="py-2 font-medium">{movement.to_hub?.name}</td>
                     <td className="py-2">{movement.crate_count}</td>
-                    <td className="py-2">
-                      {movement.scale_type ? (
-                        <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">
-                          {getScaleTypeLabel(movement.scale_type)}
-                        </span>
-                      ) : (
-                        <span className="text-gray-400">-</span>
-                      )}
-                    </td>
-                    <td className="py-2 text-sm">{movement.user?.name}</td>
+                                         <td className="py-2">
+                       {movement.scale_type ? (
+                         <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">
+                           {getScaleTypeLabel(movement.scale_type)}
+                         </span>
+                       ) : (
+                         <span className="text-gray-400">-</span>
+                       )}
+                     </td>
+                     <td className="py-2 text-sm">{movement.scale_count || "-"}</td>
+                     <td className="py-2 text-sm">{movement.user?.name}</td>
                     <td className="py-2 text-sm text-gray-600 max-w-xs truncate">
                       {movement.notes || "-"}
                     </td>

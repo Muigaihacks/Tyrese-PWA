@@ -14,9 +14,9 @@ class CrateMovement extends Model
         'to_hub_id',
         'crate_count',
         'scale_type',
+        'scale_count',
         'notes',
         'user_id',
-        'visit_id',
     ];
 
     public function fromHub()
@@ -42,10 +42,10 @@ class CrateMovement extends Model
     public function getScaleTypeOptions()
     {
         return [
-            'digital_scale' => 'Digital Scale',
-            'analog_scale' => 'Analog Scale',
-            'hanging_scale' => 'Hanging Scale',
             'platform_scale' => 'Platform Scale',
+            'field_scale' => 'Field Scale',
+            'kitchen_scale' => 'Kitchen Scale',
+            'crane_scale' => 'Crane Scale',
         ];
     }
 }

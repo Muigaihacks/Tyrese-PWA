@@ -15,8 +15,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\ToggleColumn;
-use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Textarea;
+
 
 class HubResource extends Resource
 {
@@ -53,34 +52,10 @@ class HubResource extends Resource
                             ->minValue(0)
                             ->required()
                             ->default(0),
-                        Toggle::make('is_kibiku')
-                            ->label('Is Kibiku Hub')
-                            ->default(false),
+
                     ])->columns(2),
 
-                Section::make('Cold Storage Units (Kibiku Only)')
-                    ->schema([
-                        Repeater::make('coldStorageUnits')
-                            ->relationship('coldStorageUnits')
-                            ->schema([
-                                TextInput::make('unit_id')
-                                    ->label('Unit ID')
-                                    ->required(),
-                                TextInput::make('crate_count')
-                                    ->label('Crate Count')
-                                    ->numeric()
-                                    ->minValue(0)
-                                    ->required()
-                                    ->default(0),
-                                Textarea::make('description')
-                                    ->label('Description')
-                                    ->rows(2),
-                            ])
-                            ->columns(3)
-                            ->visible(fn ($record) => $record?->is_kibiku ?? false)
-                            ->visibleOn('edit')
-                            ->visibleOn('create')
-                    ])
+
             ]);
     }
 
@@ -107,10 +82,7 @@ class HubResource extends Resource
                         'success' => true,
                         'gray' => false,
                     ]),
-                TextColumn::make('coldStorageUnits_count')
-                    ->label('Cold Storage Units')
-                    ->counts('coldStorageUnits')
-                    ->visible(fn ($record) => $record->is_kibiku),
+
                 TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()

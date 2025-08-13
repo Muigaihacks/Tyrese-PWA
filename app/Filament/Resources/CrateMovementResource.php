@@ -57,32 +57,33 @@ class CrateMovementResource extends Resource
                         Select::make('scale_type')
                             ->label('Scale Type (if moving scales)')
                             ->options([
-                                'digital_scale' => 'Digital Scale',
-                                'analog_scale' => 'Analog Scale',
-                                'hanging_scale' => 'Hanging Scale',
                                 'platform_scale' => 'Platform Scale',
+                                'field_scale' => 'Field Scale',
+                                'kitchen_scale' => 'Kitchen Scale',
+                                'crane_scale' => 'Crane Scale',
                             ])
                             ->nullable()
                             ->placeholder('Select scale type if moving scales'),
+                        TextInput::make('scale_count')
+                            ->label('Number of Scales')
+                            ->numeric()
+                            ->minValue(0)
+                            ->nullable()
+                            ->placeholder('Number of scales being moved'),
                         Textarea::make('notes')
                             ->label('Notes')
                             ->rows(3)
                             ->placeholder('Additional notes about the movement...'),
                     ])->columns(2),
 
-                Section::make('User & Visit Information')
+                Section::make('User Information')
                     ->schema([
                         Select::make('user_id')
                             ->label('User')
                             ->options(User::all()->pluck('name', 'id'))
                             ->required()
                             ->searchable(),
-                        Select::make('visit_id')
-                            ->label('Visit (Optional)')
-                            ->options(Visit::all()->pluck('id', 'id'))
-                            ->nullable()
-                            ->searchable(),
-                    ])->columns(2)
+                    ])
             ]);
     }
 
@@ -123,8 +124,8 @@ class CrateMovementResource extends Resource
                 TextColumn::make('user.name')
                     ->label('User')
                     ->searchable(),
-                TextColumn::make('visit.id')
-                    ->label('Visit ID')
+                TextColumn::make('scale_count')
+                    ->label('Scales Moved')
                     ->sortable(),
                 TextColumn::make('notes')
                     ->label('Notes')

@@ -9,4 +9,9 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateBatteryMovement extends CreateRecord
 {
     protected static string $resource = BatteryMovementResource::class;
+
+    public static function canCreateAnother(): bool
+    {
+        return false;
+    }
 }

@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Hub;
 use App\Models\CrateMovement;
-use App\Models\ColdStorageUnit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -13,7 +12,7 @@ class CrateTrackerController extends Controller
 {
     public function getHubs()
     {
-        $hubs = Hub::with('coldStorageUnits')->get();
+        $hubs = Hub::all();
         return response()->json($hubs);
     }
 
@@ -23,9 +22,9 @@ class CrateTrackerController extends Controller
             'from_hub_id' => 'required|exists:hubs,id',
             'to_hub_id' => 'required|exists:hubs,id',
             'crate_count' => 'required|integer|min:0',
-            'scale_type' => 'nullable|in:digital_scale,analog_scale,hanging_scale,platform_scale',
+            'scale_type' => 'nullable|in:platform_scale,field_scale,kitchen_scale,crane_scale',
+            'scale_count' => 'nullable|integer|min:0',
             'notes' => 'nullable|string',
-            'visit_id' => 'nullable|exists:visits,id',
         ]);
 
         // Check if source hub has enough crates
@@ -45,7 +44,6 @@ class CrateTrackerController extends Controller
                 'scale_type' => $validated['scale_type'],
                 'notes' => $validated['notes'],
                 'user_id' => Auth::id(),
-                'visit_id' => $validated['visit_id'],
             ]);
 
             // Update hub crate counts
@@ -54,9 +52,9 @@ class CrateTrackerController extends Controller
             $toHub->increment('crate_count', $validated['crate_count']);
 
             // Update scale count if scale is being moved
-            if ($validated['scale_type']) {
-                $fromHub->decrement('scale_count', 1);
-                $toHub->increment('scale_count', 1);
+            if ($validated['scale_type'] && $validated['scale_count']) {
+                $fromHub->decrement('scale_count', $validated['scale_count']);
+                $toHub->increment('scale_count', $validated['scale_count']);
             }
 
             DB::commit();
@@ -81,46 +79,5 @@ class CrateTrackerController extends Controller
         return response()->json($movements);
     }
 
-    public function getColdStorageUnits()
-    {
-        $kibikuHub = Hub::where('is_kibiku', true)->first();
-        
-        if (!$kibikuHub) {
-            return response()->json([]);
-        }
 
-        $units = ColdStorageUnit::where('hub_id', $kibikuHub->id)->get();
-        return response()->json($units);
-    }
-
-    public function updateColdStorageUnit(Request $request)
-    {
-        $validated = $request->validate([
-            'unit_id' => 'required|string',
-            'crate_count' => 'required|integer|min:0',
-            'description' => 'nullable|string',
-        ]);
-
-        $kibikuHub = Hub::where('is_kibiku', true)->first();
-        
-        if (!$kibikuHub) {
-            return response()->json(['error' => 'Kibiku hub not found.'], 404);
-        }
-
-        $unit = ColdStorageUnit::updateOrCreate(
-            [
-                'hub_id' => $kibikuHub->id,
-                'unit_id' => $validated['unit_id']
-            ],
-            [
-                'crate_count' => $validated['crate_count'],
-                'description' => $validated['description'],
-            ]
-        );
-
-        return response()->json([
-            'message' => 'Cold storage unit updated successfully',
-            'unit' => $unit
-        ]);
-    }
 }
