@@ -74,6 +74,7 @@ class InventoryController extends Controller
             }
 
             try {
+                // Create separate action record for each item
                 foreach ($validated['items_data'] as $itemData) {
                     $inventory = \App\Models\Inventory::find($itemData['inventory_id']);
 
@@ -89,25 +90,27 @@ class InventoryController extends Controller
                     }
 
                     $inventory->decrement('quantity', $itemData['quantity']);
+
+                    // Create individual action record for this item
+                    $actionData = [
+                        'user_id' => Auth::id(),
+                        'visit_id' => $validated['visit_id'],
+                        'action_type' => 'checkout',
+                        'inventory_id' => $itemData['inventory_id'],
+                        'quantity' => $itemData['quantity'],
+                        'condition_before' => $itemData['condition'],
+                        'notes' => $validated['notes'],
+                    ];
+
+                    InventoryAction::create($actionData);
                 }
-
-                // Create single action record with multiple items data
-                $actionData = [
-                    'user_id' => Auth::id(),
-                    'visit_id' => $validated['visit_id'],
-                    'action_type' => 'checkout', // Changed from 'tools' to 'checkout'
-                    'items_data' => $validated['items_data'],
-                    'notes' => $validated['notes'],
-                    'inventory_id' => $validated['items_data'][0]['inventory_id'], // For compatibility
-                    'quantity' => array_sum(array_column($validated['items_data'], 'quantity')),
-                    'condition_before' => $validated['items_data'][0]['condition'], // For compatibility
-                ];
-
-                $action = InventoryAction::create($actionData);
                 
                 // After successful checkout, update associated visit status
-                if ($action->visit) {
-                    $action->visit->update(['status' => Visit::STATUS_IN_PROGRESS]);
+                if ($validated['visit_id']) {
+                    $visit = Visit::find($validated['visit_id']);
+                    if ($visit) {
+                        $visit->update(['status' => Visit::STATUS_IN_PROGRESS]);
+                    }
                 }
                 
                 return response()->json(['message' => 'Items checked out successfully']);
@@ -173,6 +176,7 @@ class InventoryController extends Controller
             ]);
 
             try {
+                // Create separate action record for each item
                 foreach ($validated['items_data'] as $itemData) {
                     $inventory = \App\Models\Inventory::find($itemData['inventory_id']);
 
@@ -181,25 +185,27 @@ class InventoryController extends Controller
                     }
 
                     $inventory->increment('quantity', $itemData['quantity']);
+
+                    // Create individual action record for this item
+                    $actionData = [
+                        'user_id' => Auth::id(),
+                        'visit_id' => $validated['visit_id'],
+                        'action_type' => 'return',
+                        'inventory_id' => $itemData['inventory_id'],
+                        'quantity' => $itemData['quantity'],
+                        'condition_after' => $itemData['condition'],
+                        'notes' => $validated['notes'],
+                    ];
+
+                    InventoryAction::create($actionData);
                 }
-
-                // Create single action record with multiple items data
-                $actionData = [
-                    'user_id' => Auth::id(),
-                    'visit_id' => $validated['visit_id'],
-                    'action_type' => 'return', // Always set to 'return' for return actions
-                    'items_data' => $validated['items_data'],
-                    'notes' => $validated['notes'],
-                    'inventory_id' => $validated['items_data'][0]['inventory_id'], // For compatibility
-                    'quantity' => array_sum(array_column($validated['items_data'], 'quantity')),
-                    'condition_after' => $validated['items_data'][0]['condition'], // For compatibility
-                ];
-
-                $action = InventoryAction::create($actionData);
                 
                 // After successful return, update associated visit status
-                if ($action->visit) {
-                    $action->visit->update(['status' => Visit::STATUS_COMPLETED]);
+                if ($validated['visit_id']) {
+                    $visit = Visit::find($validated['visit_id']);
+                    if ($visit) {
+                        $visit->update(['status' => Visit::STATUS_COMPLETED]);
+                    }
                 }
                 
                 return response()->json(['message' => 'Items returned successfully']);

@@ -69,33 +69,7 @@ class InventoryActionsRelationManager extends RelationManager
                 \Filament\Tables\Columns\TextColumn::make('visit.id')->label('Visit ID'),
                 \Filament\Tables\Columns\TextColumn::make('condition_before')->label('Condition Before'),
                 \Filament\Tables\Columns\TextColumn::make('condition_after')->label('Condition After'),
-                \Filament\Tables\Columns\TextColumn::make('items_data')
-                    ->label('Items Checked Out')
-                    ->formatStateUsing(function ($record) {
-                        if ($record->items_data && is_array($record->items_data)) {
-                            $items = [];
-                            foreach ($record->items_data as $item) {
-                                $inventory = \App\Models\Inventory::find($item['inventory_id']);
-                                $productName = $inventory ? $inventory->product : 'Unknown Item';
-                                $items[] = "{$productName} (Qty: {$item['quantity']}, Condition: {$item['condition']})";
-                            }
-                            return implode('; ', $items);
-                        }
-                        return 'Single item checkout';
-                    })
-                    ->limit(100)
-                    ->tooltip(function ($record) {
-                        if ($record->items_data && is_array($record->items_data)) {
-                            $items = [];
-                            foreach ($record->items_data as $item) {
-                                $inventory = \App\Models\Inventory::find($item['inventory_id']);
-                                $productName = $inventory ? $inventory->product : 'Unknown Item';
-                                $items[] = "{$productName} (Qty: {$item['quantity']}, Condition: {$item['condition']})";
-                            }
-                            return implode("\n", $items);
-                        }
-                        return 'Single item checkout';
-                    }),
+
                 \Filament\Tables\Columns\TextColumn::make('notes')
                     ->label('Notes')
                     ->limit(50)
