@@ -42,6 +42,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/casual-labourer/time-in', [CasualLabourerController::class, 'timeIn']);
     Route::post('/casual-labourer/time-out', [CasualLabourerController::class, 'timeOut']);
     Route::get('/casual-labourer/attendance-history', [CasualLabourerController::class, 'getAttendanceHistory']);
+    
+    // Crate Tracker Routes
+    Route::get('/crate-tracker/hubs', [\App\Http\Controllers\CrateTrackerController::class, 'getHubs']);
+    Route::post('/crate-tracker/movement', [\App\Http\Controllers\CrateTrackerController::class, 'createMovement']);
+    Route::get('/crate-tracker/movements', [\App\Http\Controllers\CrateTrackerController::class, 'getMovements']);
+    Route::get('/crate-tracker/cold-storage-units', [\App\Http\Controllers\CrateTrackerController::class, 'getColdStorageUnits']);
+    Route::post('/crate-tracker/cold-storage-unit', [\App\Http\Controllers\CrateTrackerController::class, 'updateColdStorageUnit']);
 });
 
 Route::post('/forgot-password', function (Request $request) {
