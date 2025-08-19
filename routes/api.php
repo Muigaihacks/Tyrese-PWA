@@ -8,10 +8,15 @@ use App\Http\Controllers\VisitController;
 use App\Http\Controllers\LeasedUnitController;
 use App\Http\Controllers\BatteryController;
 use App\Http\Controllers\CasualLabourerController;
+use App\Http\Controllers\HealthController;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+
+// Health check routes (no authentication required)
+Route::get('/health', [HealthController::class, 'check']);
+Route::get('/status', [HealthController::class, 'status']);
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/user', function (Request $request) {
