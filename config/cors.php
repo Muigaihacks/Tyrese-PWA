@@ -20,14 +20,20 @@ return [
     'allowed_methods' => ['*'],
 
     'allowed_origins' => [
+        // Local development origins
         'http://localhost:5173', 
         'http://localhost:8000',
         'https://localhost:5173',
         'https://localhost:8000',
-        // Staging domain - corrected format
+        
+        // Staging origins
         'https://rbuinventory-staging.sokolink.co.ke',
         'https://*.sokolink.co.ke',
-        // Allow all origins for development (remove in production)
+        
+        // Environment-specific origins from .env
+        ...(env('CORS_ALLOWED_ORIGINS') ? explode(',', env('CORS_ALLOWED_ORIGINS')) : []),
+        
+        // Allow all origins for local development (remove in production)
         env('APP_ENV') === 'local' ? '*' : null,
     ],
 
