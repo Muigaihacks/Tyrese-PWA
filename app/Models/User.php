@@ -73,24 +73,37 @@ class User extends Authenticatable
         parent::boot();
 
         static::saved(function ($user) {
+            // Prevent infinite recursion by checking if we're already processing roles
+            if (isset($user->attributes['_processing_roles'])) {
+                return;
+            }
+
             if ($user->role) {
-                // Remove all existing roles first
-                $user->syncRoles([]);
+                // Mark that we're processing roles to prevent recursion
+                $user->attributes['_processing_roles'] = true;
                 
-                // Ensure the role exists for both web and sanctum guards
-                $webRole = \Spatie\Permission\Models\Role::firstOrCreate([
-                    'name' => $user->role,
-                    'guard_name' => 'web'
-                ]);
-                
-                $sanctumRole = \Spatie\Permission\Models\Role::firstOrCreate([
-                    'name' => $user->role,
-                    'guard_name' => 'sanctum'
-                ]);
-                
-                // Assign both roles to ensure compatibility
-                $user->assignRole($webRole);
-                $user->assignRole($sanctumRole);
+                try {
+                    // Remove all existing roles first
+                    $user->syncRoles([]);
+                    
+                    // Ensure the role exists for both web and sanctum guards
+                    $webRole = \Spatie\Permission\Models\Role::firstOrCreate([
+                        'name' => $user->role,
+                        'guard_name' => 'web'
+                    ]);
+                    
+                    $sanctumRole = \Spatie\Permission\Models\Role::firstOrCreate([
+                        'name' => $user->role,
+                        'guard_name' => 'sanctum'
+                    ]);
+                    
+                    // Assign both roles to ensure compatibility
+                    $user->assignRole($webRole);
+                    $user->assignRole($sanctumRole);
+                } finally {
+                    // Always remove the processing flag
+                    unset($user->attributes['_processing_roles']);
+                }
             }
         });
     }
