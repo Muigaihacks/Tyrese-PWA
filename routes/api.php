@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Auth;
 // Health check routes (no authentication required)
 Route::get('/health', [HealthController::class, 'check']);
 Route::get('/status', [HealthController::class, 'status']);
+Route::get('/debug-user', [HealthController::class, 'debugUser']); // Debug user details
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/user', function (Request $request) {

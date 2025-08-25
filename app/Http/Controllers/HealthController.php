@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Models\User;
 use Exception;
 
 class HealthController extends Controller
@@ -109,5 +110,73 @@ class HealthController extends Controller
         ]);
 
         return response()->json($statusData);
+    }
+
+    /**
+     * Debug user details endpoint (for troubleshooting login issues)
+     */
+    public function debugUser(Request $request)
+    {
+        $email = $request->query('email');
+        
+        if (!$email) {
+            return response()->json(['error' => 'Email parameter is required'], 400);
+        }
+
+        try {
+            $user = User::where('email', $email)->first();
+            
+            if (!$user) {
+                Log::warning('Debug user - User not found', [
+                    'email' => $email,
+                    'ip' => $request->ip(),
+                    'timestamp' => now()->toDateTimeString()
+                ]);
+                
+                return response()->json([
+                    'found' => false,
+                    'message' => 'User not found',
+                    'email' => $email
+                ]);
+            }
+
+            $userData = [
+                'found' => true,
+                'user_id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $user->role,
+                'status' => $user->status,
+                'email_verified_at' => $user->email_verified_at,
+                'created_at' => $user->created_at,
+                'updated_at' => $user->updated_at,
+                'password_hash_exists' => !empty($user->password),
+                'password_hash_length' => strlen($user->password),
+                'has_roles' => $user->roles->count(),
+                'roles' => $user->roles->pluck('name')->toArray()
+            ];
+
+            Log::info('Debug user - User details retrieved', [
+                'user_id' => $user->id,
+                'email' => $email,
+                'ip' => $request->ip(),
+                'timestamp' => now()->toDateTimeString()
+            ]);
+
+            return response()->json($userData);
+
+        } catch (Exception $e) {
+            Log::error('Debug user - Error occurred', [
+                'email' => $email,
+                'error' => $e->getMessage(),
+                'ip' => $request->ip(),
+                'timestamp' => now()->toDateTimeString()
+            ]);
+
+            return response()->json([
+                'error' => 'Error retrieving user details',
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
 }
