@@ -16,17 +16,19 @@ class LogApiRequests
      */
     public function handle(Request $request, Closure $next): Response
     {
+        // Skip logging for health check endpoints to prevent infinite recursion
+        if ($request->is('api/health') || $request->is('api/status') || $request->is('api/debug-user')) {
+            return $next($request);
+        }
+
         $startTime = microtime(true);
         
-        // Log incoming request
+        // Log incoming request (simplified to prevent recursion)
         Log::info('API Request received', [
             'method' => $request->method(),
             'url' => $request->fullUrl(),
             'ip' => $request->ip(),
-            'user_agent' => $request->userAgent(),
-            'headers' => $request->headers->all(),
-            'request_time' => now()->toDateTimeString(),
-            'request_id' => uniqid('req_', true)
+            'timestamp' => now()->toDateTimeString()
         ]);
 
         // Handle the request
@@ -35,14 +37,13 @@ class LogApiRequests
         // Calculate response time
         $responseTime = microtime(true) - $startTime;
 
-        // Log response
+        // Log response (simplified to prevent recursion)
         Log::info('API Response sent', [
             'method' => $request->method(),
             'url' => $request->fullUrl(),
             'status_code' => $response->getStatusCode(),
             'response_time_ms' => round($responseTime * 1000, 2),
-            'response_time' => now()->toDateTimeString(),
-            'request_id' => uniqid('req_', true)
+            'timestamp' => now()->toDateTimeString()
         ]);
 
         return $response;

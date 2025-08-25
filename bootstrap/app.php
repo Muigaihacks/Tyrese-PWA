@@ -23,30 +23,36 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        // Log all exceptions for debugging
+        // Log all exceptions for debugging (simplified to prevent recursion)
         $exceptions->report(function (\Throwable $e) {
+            // Prevent infinite recursion by checking if this is a logging-related error
+            if (str_contains($e->getMessage(), 'Maximum call stack size') || 
+                str_contains($e->getMessage(), 'recursion') ||
+                str_contains($e->getFile(), 'Log.php')) {
+                return; // Skip logging to prevent infinite loop
+            }
+
             Log::error('Application exception occurred', [
                 'message' => $e->getMessage(),
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
-                'trace' => $e->getTraceAsString(),
-                'request_url' => request()->fullUrl(),
-                'request_method' => request()->method(),
-                'request_ip' => request()->ip(),
-                'user_agent' => request()->userAgent(),
                 'timestamp' => now()->toDateTimeString(),
             ]);
         });
 
-        // Log database connection errors specifically
+        // Log database connection errors specifically (simplified)
         $exceptions->report(function (\Illuminate\Database\QueryException $e) {
+            // Prevent infinite recursion
+            if (str_contains($e->getMessage(), 'Maximum call stack size') || 
+                str_contains($e->getMessage(), 'recursion')) {
+                return;
+            }
+
             Log::critical('Database query exception', [
                 'message' => $e->getMessage(),
                 'sql' => $e->getSql(),
-                'bindings' => $e->getBindings(),
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
-                'request_url' => request()->fullUrl(),
                 'timestamp' => now()->toDateTimeString(),
             ]);
         });

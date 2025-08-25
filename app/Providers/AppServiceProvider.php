@@ -23,31 +23,28 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Database connection logging
+        // Simplified database connection logging to prevent recursion
         try {
             DB::connection()->getPdo();
             Log::info('Database connection successful', [
                 'database' => config('database.connections.' . config('database.default') . '.database'),
                 'host' => config('database.connections.' . config('database.default') . '.host'),
-                'port' => config('database.connections.' . config('database.default') . '.port'),
-                'connection_time' => now()->toDateTimeString()
+                'timestamp' => now()->toDateTimeString()
             ]);
         } catch (Exception $e) {
             Log::error('Database connection failed', [
                 'error' => $e->getMessage(),
                 'database' => config('database.connections.' . config('database.default') . '.database'),
                 'host' => config('database.connections.' . config('database.default') . '.host'),
-                'port' => config('database.connections.' . config('database.default') . '.port'),
-                'connection_time' => now()->toDateTimeString()
+                'timestamp' => now()->toDateTimeString()
             ]);
         }
 
-        // Log application startup
+        // Simplified application startup logging
         Log::info('Sokofresh application started', [
             'app_name' => config('app.name'),
             'app_env' => config('app.env'),
-            'app_url' => config('app.url'),
-            'startup_time' => now()->toDateTimeString()
+            'timestamp' => now()->toDateTimeString()
         ]);
 
         ResetPassword::createUrlUsing(function (object $notifiable, string $token) {
