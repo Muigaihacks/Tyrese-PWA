@@ -19,11 +19,29 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['http://localhost:5173', 'http://localhost:8000'],
+    'allowed_origins' => [
+        'http://localhost:5173', 
+        'http://localhost:8000',
+        'https://localhost:5173',
+        'https://localhost:8000',
+        // Staging domain - corrected format
+        'https://rbuinventory-staging.sokolink.co.ke',
+        'https://*.sokolink.co.ke',
+        // Allow all origins for development (remove in production)
+        env('APP_ENV') === 'local' ? '*' : null,
+    ],
 
     'allowed_origins_patterns' => [],
 
-    'allowed_headers' => ['*'],
+    'allowed_headers' => [
+        'Accept',
+        'Authorization',
+        'Content-Type',
+        'X-Requested-With',
+        'X-CSRF-TOKEN',
+        'X-XSRF-TOKEN',
+        'X-Socket-ID',
+    ],
 
     'exposed_headers' => [],
 

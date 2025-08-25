@@ -23,6 +23,27 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        // Handle CSRF token mismatch specifically
+        $exceptions->render(function (\Illuminate\Session\TokenMismatchException $e) {
+            Log::warning('CSRF token mismatch detected', [
+                'url' => request()->fullUrl(),
+                'method' => request()->method(),
+                'ip' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+                'timestamp' => now()->toDateTimeString(),
+            ]);
+
+            if (request()->expectsJson()) {
+                return response()->json([
+                    'message' => 'CSRF token mismatch. Please refresh the page and try again.',
+                    'error' => 'csrf_mismatch',
+                    'timestamp' => now()->toDateTimeString(),
+                ], 419);
+            }
+
+            return response()->view('errors.csrf', [], 419);
+        });
+
         // Log all exceptions for debugging (simplified to prevent recursion)
         $exceptions->report(function (\Throwable $e) {
             // Prevent infinite recursion by checking if this is a logging-related error

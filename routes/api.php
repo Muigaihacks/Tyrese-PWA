@@ -19,6 +19,29 @@ Route::get('/health', [HealthController::class, 'check']);
 Route::get('/status', [HealthController::class, 'status']);
 Route::get('/debug-user', [HealthController::class, 'debugUser']); // Debug user details
 
+// CSRF token refresh endpoint
+Route::get('/csrf-token', function () {
+    return response()->json([
+        'token' => csrf_token(),
+        'timestamp' => now()->toDateTimeString()
+    ]);
+});
+
+// Test authentication endpoint
+Route::get('/test-auth', function (Request $request) {
+    return response()->json([
+        'authenticated' => Auth::check(),
+        'user' => Auth::user() ? [
+            'id' => Auth::user()->id,
+            'name' => Auth::user()->name,
+            'email' => Auth::user()->email,
+            'role' => Auth::user()->role,
+        ] : null,
+        'session_id' => session()->getId(),
+        'timestamp' => now()->toDateTimeString()
+    ]);
+});
+
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
