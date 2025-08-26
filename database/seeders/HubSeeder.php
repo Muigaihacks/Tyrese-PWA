@@ -62,6 +62,13 @@ class HubSeeder extends Seeder
                 'scale_count' => 0,
                 'is_kibiku' => true,
             ],
+            [
+                'name' => 'CSU',
+                'location' => 'Cold Storage Unit',
+                'crate_count' => 0,
+                'scale_count' => 0,
+                'is_kibiku' => false,
+            ],
         ];
 
         foreach ($hubs as $hub) {
