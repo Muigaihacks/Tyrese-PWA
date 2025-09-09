@@ -66,11 +66,11 @@ class BatteryResource extends Resource
                         Select::make('cold_storage_unit_id')
                             ->label('Cold Storage Unit')
                             ->options(function () {
-                                $units = \App\Models\LeasedUnit::pluck('name', 'id')->toArray();
-                                return ['kibiku' => 'KIBIKU'] + $units;
+                                return \App\Models\LeasedUnit::orderBy('name')->pluck('name', 'id')->toArray();
                             })
                             ->searchable()
-                            ->required(),
+                            ->required()
+                            ->helperText('Select KIBIKU Hub for batteries stored at the hub, or a specific cold storage unit'),
                         Select::make('condition')
                             ->label('Condition')
                             ->options([
@@ -113,9 +113,10 @@ class BatteryResource extends Resource
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('coldStorageUnit.name')
-                    ->label('Unit')
+                    ->label('Location')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->description(fn ($record) => $record->coldStorageUnit->address ?? ''),
                 TextColumn::make('condition')
                     ->label('Condition')
                     ->badge()
@@ -161,7 +162,7 @@ class BatteryResource extends Resource
                         'retired' => 'Retired'
                     ]),
                 Tables\Filters\SelectFilter::make('cold_storage_unit_id')
-                    ->label('Unit')
+                    ->label('Location')
                     ->relationship('coldStorageUnit', 'name'),
             ])
             ->actions([

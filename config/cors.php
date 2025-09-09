@@ -32,9 +32,6 @@ return [
         
         // Environment-specific origins from .env
         ...(env('CORS_ALLOWED_ORIGINS') ? explode(',', env('CORS_ALLOWED_ORIGINS')) : []),
-        
-        // Allow all origins for local development (remove in production)
-        env('APP_ENV') === 'local' ? '*' : null,
     ],
 
     'allowed_origins_patterns' => [],

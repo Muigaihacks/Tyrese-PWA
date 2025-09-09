@@ -32,7 +32,8 @@ class EnsureUserIsAdmin
         if ($request->routeIs('filament.admin.auth.login') || 
             $request->routeIs('filament.admin.auth.logout') ||
             $request->is('admin/login') ||
-            $request->is('debug-auth')) {
+            $request->is('debug-auth') ||
+            $request->is('debug-roles')) {
             Log::info('Admin middleware - Allowing access to login/debug page');
             return $next($request);
         }
@@ -45,11 +46,24 @@ class EnsureUserIsAdmin
 
         $user = Auth::user();
         
+        // Log detailed user information
+        Log::info('Admin middleware - User details', [
+            'user_id' => $user->id,
+            'user_email' => $user->email,
+            'user_role' => $user->role,
+            'has_admin_role' => $user->hasRole('admin'),
+            'all_roles' => $user->roles->pluck('name')->toArray(),
+            'timestamp' => now()->toDateTimeString()
+        ]);
+        
         // Check if user has admin role
         if (!$user->hasRole('admin')) {
             Log::warning('Admin middleware - User does not have admin role', [
                 'user_id' => $user->id,
+                'user_email' => $user->email,
                 'user_role' => $user->role,
+                'has_admin_role' => $user->hasRole('admin'),
+                'all_roles' => $user->roles->pluck('name')->toArray(),
                 'timestamp' => now()->toDateTimeString()
             ]);
             abort(403, 'Access denied. Admin privileges required.');
