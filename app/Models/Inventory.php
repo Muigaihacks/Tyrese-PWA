@@ -13,6 +13,7 @@ class Inventory extends Model
         'date_added',
         'condition',
         'stock_level',
+        'notes',
     ];
 
     protected $casts = [
@@ -64,7 +65,8 @@ class Inventory extends Model
     {
         return [
             'tool' => 'Tool',
-            'spare_part' => 'Spare Part'
+            'spare_part' => 'Spare Part',
+            'asset' => 'Asset'
         ];
     }
 
@@ -73,6 +75,7 @@ class Inventory extends Model
         return match($this->item_type) {
             'tool' => 'blue',
             'spare_part' => 'green',
+            'asset' => 'purple',
             default => 'gray'
         };
     }

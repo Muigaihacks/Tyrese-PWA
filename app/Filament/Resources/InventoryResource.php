@@ -53,7 +53,8 @@ class InventoryResource extends Resource
                             ->label('Item Type')
                             ->options([
                                 'tool' => 'Tool',
-                                'spare_part' => 'Spare Part'
+                                'spare_part' => 'Spare Part',
+                                'asset' => 'Asset'
                             ])
                             ->default('tool')
                             ->required(),
@@ -77,6 +78,15 @@ class InventoryResource extends Resource
                             ->required()
                             ->default(now()),
                     ])->columns(2),
+
+                Section::make('Additional Information')
+                    ->schema([
+                        Textarea::make('notes')
+                            ->label('Notes')
+                            ->rows(3)
+                            ->maxLength(1000)
+                            ->placeholder('Add notes about this item (especially useful for assets)'),
+                    ])->columns(1),
             ]);
     }
 
@@ -100,6 +110,7 @@ class InventoryResource extends Resource
                     ->color(fn (string $state): string => match ($state) {
                         'tool' => 'blue',
                         'spare_part' => 'green',
+                        'asset' => 'purple',
                         default => 'gray',
                     }),
                 TextColumn::make('quantity')
@@ -119,6 +130,16 @@ class InventoryResource extends Resource
                     ->label('Date Added')
                     ->date()
                     ->sortable(),
+                TextColumn::make('notes')
+                    ->label('Notes')
+                    ->limit(50)
+                    ->tooltip(function (TextColumn $column): ?string {
+                        $state = $column->getState();
+                        if (strlen($state) <= 50) {
+                            return null;
+                        }
+                        return $state;
+                    }),
                 BadgeColumn::make('stock_level')
                     ->label('Stock Level')
                     ->getStateUsing(fn ($record) => $record->stock_level)
@@ -133,7 +154,8 @@ class InventoryResource extends Resource
                     ->label('Item Type')
                     ->options([
                         'tool' => 'Tool',
-                        'spare_part' => 'Spare Part'
+                        'spare_part' => 'Spare Part',
+                        'asset' => 'Asset'
                     ]),
                 Tables\Filters\SelectFilter::make('condition')
                     ->label('Condition')

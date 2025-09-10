@@ -23,7 +23,10 @@ class InventoryController extends Controller
 
     public function index()
     {
-        return response()->json(Inventory::with('inventoryLocations.location')->get());
+        // Exclude assets from checkout/return functionality - they don't move
+        return response()->json(Inventory::with('inventoryLocations.location')
+            ->whereIn('item_type', ['tool', 'spare_part'])
+            ->get());
     }
 
     public function store(Request $request)
@@ -251,7 +254,9 @@ class InventoryController extends Controller
 
     public function listDropdown(Request $request)
     {
-        $inventories = \App\Models\Inventory::orderBy('product')->get(['id', 'product as name']);
+        // Exclude assets from checkout/return dropdowns - they don't move
+        $inventories = \App\Models\Inventory::whereIn('item_type', ['tool', 'spare_part'])
+            ->orderBy('product')->get(['id', 'product as name']);
         return response()->json($inventories);
     }
 }
