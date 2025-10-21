@@ -27,8 +27,8 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
-            ->brandName('SokoFresh')
-            ->brandLogo(asset('images/logo.jpg'))
+            ->brandName('Demo System')
+            // ->brandLogo(asset('images/logo.jpg')) // Hidden for demo
             ->colors([
                 'primary' => Color::Hex('#F59E42'), // Orange
                 'sidebar' => Color::Hex('#1E40AF'), // Blue

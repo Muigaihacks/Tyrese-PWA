@@ -69,7 +69,7 @@ export default function Topbar() {
       <div className="bg-white shadow-sm border-b px-4 py-3 flex justify-between items-center">
         <div className="flex items-center">
           <div className="w-8 h-8 bg-green-500 rounded mr-3"></div>
-          <span className="font-semibold text-gray-800">SokoFresh</span>
+          <span className="font-semibold text-gray-800">Demo System</span>
         </div>
         
         <div className="flex items-center space-x-4">

@@ -2,11 +2,8 @@
 
 namespace App\Providers;
 
-use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Exception;
+use Illuminate\Support\Facades\Blade;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -15,7 +12,19 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Override the Number class to prevent intl requirement
+        $this->app->bind(\Illuminate\Support\Number::class, function ($app) {
+            return new class {
+                public static function format($number, $precision = 0, $maxPrecision = null, $locale = null) {
+                    return number_format($number, $precision);
+                }
+                
+                public static function __callStatic($method, $parameters) {
+                    // Return the first parameter as-is for any other Number methods
+                    return $parameters[0] ?? null;
+                }
+            };
+        });
     }
 
     /**
@@ -23,32 +32,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Simplified database connection logging to prevent recursion
-        try {
-            DB::connection()->getPdo();
-            Log::info('Database connection successful', [
-                'database' => config('database.connections.' . config('database.default') . '.database'),
-                'host' => config('database.connections.' . config('database.default') . '.host'),
-                'timestamp' => now()->toDateTimeString()
-            ]);
-        } catch (Exception $e) {
-            Log::error('Database connection failed', [
-                'error' => $e->getMessage(),
-                'database' => config('database.connections.' . config('database.default') . '.database'),
-                'host' => config('database.connections.' . config('database.default') . '.host'),
-                'timestamp' => now()->toDateTimeString()
-            ]);
-        }
-
-        // Simplified application startup logging
-        Log::info('Sokofresh application started', [
-            'app_name' => config('app.name'),
-            'app_env' => config('app.env'),
-            'timestamp' => now()->toDateTimeString()
-        ]);
-
-        ResetPassword::createUrlUsing(function (object $notifiable, string $token) {
-            return config('app.frontend_url')."/password-reset/$token?email={$notifiable->getEmailForPasswordReset()}";
-        });
+        //
     }
 }

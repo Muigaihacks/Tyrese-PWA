@@ -27,7 +27,7 @@ export default function DashboardLayout() {
               </div>
               <div className="ml-3">
                 <p className="text-sm text-blue-700">
-                  <strong>Welcome to SokoFresh!</strong> For security, please change your password by clicking "Change Password" in the top right corner.
+                  <strong>Welcome to Demo System!</strong> For security, please change your password by clicking "Change Password" in the top right corner.
                 </p>
               </div>
             </div>
