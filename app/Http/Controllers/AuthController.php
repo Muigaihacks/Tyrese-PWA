@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 
 class AuthController extends Controller
@@ -56,17 +57,21 @@ class AuthController extends Controller
             return response()->json(['message' => 'Login failed. Please try again.'], 401);
         }
 
-        // Check user status
-        if (isset($user->status) && $user->status != 1) {
+        // Check user status (handle both boolean true and integer 1)
+        if (isset($user->status) && $user->status !== true && $user->status !== 1) {
             Log::warning('Login failed - User not active', [
                 'user_id' => $user->id,
                 'email' => $user->email,
                 'status' => $user->status,
+                'status_type' => gettype($user->status),
                 'ip' => $request->ip(),
                 'timestamp' => now()->toDateTimeString()
             ]);
             return response()->json(['message' => 'User is not active'], 403);
         }
+
+        // Actually log the user in (creates session for Sanctum)
+        Auth::login($user, $request->boolean('remember'));
 
         // Log successful login
         Log::info('Login successful', [
@@ -76,7 +81,18 @@ class AuthController extends Controller
             'timestamp' => now()->toDateTimeString()
         ]);
 
-        // In a real app, generate a JWT or session token
-        return response()->json(['message' => 'Login successful', 'token' => 'dummy-token'], 200);
+        // Regenerate session to prevent session fixation
+        $request->session()->regenerate();
+
+        // Return user data (matching what React expects)
+        return response()->json([
+            'message' => 'Login successful',
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $user->role,
+            ]
+        ], 200);
     }
 }

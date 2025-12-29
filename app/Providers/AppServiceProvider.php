@@ -3,7 +3,12 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
+use Illuminate\Auth\Notifications\ResetPassword;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -12,19 +17,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        // Override the Number class to prevent intl requirement
-        $this->app->bind(\Illuminate\Support\Number::class, function ($app) {
-            return new class {
-                public static function format($number, $precision = 0, $maxPrecision = null, $locale = null) {
-                    return number_format($number, $precision);
-                }
-                
-                public static function __callStatic($method, $parameters) {
-                    // Return the first parameter as-is for any other Number methods
-                    return $parameters[0] ?? null;
-                }
-            };
-        });
+        //
     }
 
     /**
@@ -32,6 +25,20 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Super admin should never lose visibility/access to Filament modules due to missing permissions.
+        // This also fixes cases where policies exist but permissions have not been generated/seeded yet.
+        Gate::before(function ($user) {
+            return ($user instanceof \App\Models\User && $user->hasRole('super_admin')) ? true : null;
+        });
+
+        // Define API rate limiter
+        RateLimiter::for('api', function (Request $request) {
+            return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
+        });
+
+        // Customize the Reset Password URL to point to the Next.js Frontend
+        ResetPassword::createUrlUsing(function (object $notifiable, string $token) {
+            return config('app.frontend_url') . "/reset-password?token={$token}&email={$notifiable->getEmailForPasswordReset()}";
+        });
     }
 }

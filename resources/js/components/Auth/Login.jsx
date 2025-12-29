@@ -20,17 +20,23 @@ const Login = () => {
       // 1. Get CSRF cookie
       await axios.get('/sanctum/csrf-cookie', { withCredentials: true });
 
-      // 2. Login (POST to /login)
-      const loginResponse = await axios.post('/login', { email, password }, { withCredentials: true });
+      // 2. Login (POST to /api/login for API authentication)
+      const loginResponse = await axios.post('/api/login', { email, password }, { 
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+        }
+      });
       
-      // Check if login was successful
-      if (loginResponse.status !== 200 && loginResponse.status !== 204) {
+      // Check if login was successful and get user data from response
+      if (loginResponse.status !== 200) {
         throw new Error('Login failed');
       }
 
-      // 3. Fetch user data only if login was successful
-      const userResponse = await axios.get('/api/user', { withCredentials: true });
-      const userData = userResponse.data;
+      // Get user data from login response or fetch separately
+      const userData = loginResponse.data.user || loginResponse.data;
 
       // 4. Only login and navigate if we have valid user data
       if (userData && userData.id) {
@@ -80,6 +86,16 @@ const Login = () => {
             <h2 className="text-xl font-bold">Login</h2>
           </div>
           <p className="text-gray-500 text-sm mb-4">Your Partner in Freshness and Prosperity.</p>
+          
+          {/* Demo Credentials Info */}
+          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-sm font-semibold text-blue-900 mb-2">Demo Credentials:</p>
+            <div className="text-xs text-blue-800 space-y-1">
+              <p><span className="font-medium">Email:</span> admin@demo.com</p>
+              <p><span className="font-medium">Password:</span> demo123</p>
+            </div>
+          </div>
+          
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
               <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">Email*</label>

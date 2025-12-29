@@ -6,6 +6,7 @@ use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\FontProviders\LocalFontProvider;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
@@ -26,7 +27,10 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
-            ->login()
+            ->login(\App\Filament\Pages\CustomLogin::class)
+            // Avoid render-blocking external font loads (e.g. fonts.bunny.net).
+            // This prevents Safari from sitting on a blank page if that request is blocked/hangs.
+            ->font('system-ui', provider: LocalFontProvider::class)
             ->brandName('Demo System')
             // ->brandLogo(asset('images/logo.jpg')) // Hidden for demo
             ->colors([
