@@ -15,12 +15,14 @@ return [
     |
     */
 
-    'stateful' => [
+    'stateful' => array_filter([
+        // Local development
         'localhost',
         'localhost:5173',
         'localhost:8000',
-        // add any other domains/ports you use for frontend
-    ],
+        // Environment-specific domains from .env
+        ...(env('SANCTUM_STATEFUL_DOMAINS') ? explode(',', env('SANCTUM_STATEFUL_DOMAINS')) : []),
+    ]),
 
     /*
     |--------------------------------------------------------------------------

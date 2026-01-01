@@ -15,9 +15,9 @@ Your current setup is a **Laravel + React SPA** where:
 
 ## Deployment Options
 
-### Option 1: Deploy Full Stack to Railway (Recommended - Easiest) ✅
+### Option 1: Deploy Full Stack to Railway (Recommended - Easiest) ✅ **SELECTED**
 
-**Railway.app** supports Laravel apps natively and is the easiest option.
+**Railway.app** supports Laravel apps natively and is the easiest option. This is the chosen deployment method.
 
 **Pricing:**
 - **Free tier:** $5 credit/month (enough for small projects)
@@ -33,8 +33,8 @@ Your current setup is a **Laravel + React SPA** where:
 - ✅ No server management needed
 
 **Cons:**
-- ⚠️ Limited free tier (may need to pay after $5 credit)
-- ⚠️ Sleeps after inactivity on free tier
+- ⚠️ Limited free tier ($5 credit/month - may need to pay after credit runs out)
+- ✅ Does NOT sleep (stays awake 24/7 unlike Render free tier)
 
 **Setup:**
 1. Push code to GitHub
@@ -105,10 +105,11 @@ Your current setup is a **Laravel + React SPA** where:
 ## Recommendation
 
 ### For Quick Deployment (Today):
-**Use Railway.app** - Deploy the full stack as-is (Option 1)
+**Use Railway.app** - Deploy the full stack as-is (Option 1) ✅ **SELECTED**
 - No code changes needed
-- 15 minutes to deploy
-- ~$5-10/month
+- 10 minutes to deploy
+- Free tier: $5 credit/month (usually enough for small projects)
+- Does NOT sleep - stays awake 24/7
 - Everything works immediately
 
 ### For Long-term (Future):
@@ -144,16 +145,13 @@ Your current setup is a **Laravel + React SPA** where:
 4. **Select your Tyrese-PWA repo**
 5. **Add PostgreSQL service** (click "+ New" → PostgreSQL)
 6. **Set environment variables:**
-   - `APP_KEY` (generate with `php artisan key:generate`)
-   - `DB_HOST`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` (from PostgreSQL service)
-   - `APP_URL` (your Railway app URL)
+   - `APP_KEY` (generate with `php artisan key:generate --show`)
+   - Use Railway's template variables for DB: `${{Postgres.PGHOST}}`, `${{Postgres.PGDATABASE}}`, etc.
+   - `APP_URL` (your Railway app URL - set after first deploy)
    - `FRONTEND_URL` (same as APP_URL)
-7. **Run migrations:**
-   - Railway CLI: `railway run php artisan migrate`
-   - Or add to build command
-8. **Deploy!**
+7. **Deploy!** (Migrations, role seeding, and admin user creation happen automatically)
 
-**That's it!** Your app will be live in ~10 minutes.
+**That's it!** Your app will be live in ~10 minutes. See `DEPLOY_RAILWAY_GUIDE.md` for detailed steps.
 
 ---
 
@@ -161,7 +159,7 @@ Your current setup is a **Laravel + React SPA** where:
 
 **Current situation:** Can't deploy to Vercel because it's a Laravel app (PHP), not because of separation.
 
-**Best option:** Railway.app - deploy full stack as-is, no code changes needed.
+**Selected option:** Railway.app - deploy full stack as-is, no code changes needed.
 
 **Future option:** Separate frontend/backend for better architecture (requires refactoring).
 

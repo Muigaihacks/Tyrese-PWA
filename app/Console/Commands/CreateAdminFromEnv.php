@@ -1,0 +1,80 @@
+<?php
+
+namespace App\Console\Commands;
+
+use App\Models\User;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Hash;
+
+class CreateAdminFromEnv extends Command
+{
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = 'admin:create-from-env';
+
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'Creates an admin user from environment variables (for Render free tier deployment)';
+
+    /**
+     * Execute the console command.
+     */
+    public function handle()
+    {
+        // Get credentials from environment variables with defaults
+        $adminName = env('ADMIN_NAME', 'Admin');
+        $adminEmail = env('ADMIN_EMAIL', 'admin@demo.com');
+        $adminPassword = env('ADMIN_PASSWORD', 'demo123');
+        $adminRole = env('ADMIN_ROLE', 'admin');
+
+        // Check if user already exists
+        if (User::where('email', $adminEmail)->exists()) {
+            $this->info("User with email '{$adminEmail}' already exists. Skipping creation.");
+            return 0;
+        }
+
+        try {
+            // Ensure roles exist (run role seeder if needed)
+            try {
+                $this->call('db:seed', ['--class' => 'RoleSeeder', '--force' => true]);
+            } catch (\Exception $e) {
+                // Role seeder might fail if roles already exist, that's ok
+                $this->warn("Note: Could not run RoleSeeder (roles may already exist): " . $e->getMessage());
+            }
+
+            // Create the admin user
+            $user = User::create([
+                'name' => $adminName,
+                'email' => $adminEmail,
+                'password' => Hash::make($adminPassword),
+                'role' => $adminRole,
+                'status' => true,
+                'email_verified_at' => now(),
+            ]);
+
+            $this->info("✅ Successfully created admin user!");
+            $this->info("Name: {$user->name}");
+            $this->info("Email: {$user->email}");
+            $this->info("Role: {$user->role}");
+            $this->info("Password: {$adminPassword}");
+            $this->info("");
+            $this->info("🔐 You can now log in to:");
+            $this->info("   Admin Panel: /admin");
+            $this->info("   User Interface: /login");
+
+            return 0;
+
+        } catch (\Exception $e) {
+            $this->error("❌ Failed to create admin user: " . $e->getMessage());
+            $this->error("Stack trace: " . $e->getTraceAsString());
+            return 1;
+        }
+    }
+}
+
