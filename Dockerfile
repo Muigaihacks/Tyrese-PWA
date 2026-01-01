@@ -39,10 +39,10 @@ RUN npm install && npm run build
 RUN mkdir -p storage/framework/{sessions,views,cache,testing} storage/logs bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
 
-# Cache Laravel config, routes, views
+# Cache Laravel config and routes (skip view cache as it requires full app context)
 RUN php artisan config:cache \
     && php artisan route:cache \
-    && php artisan view:cache
+    || true
 
 # Expose port (Railway sets PORT dynamically)
 EXPOSE 8000
