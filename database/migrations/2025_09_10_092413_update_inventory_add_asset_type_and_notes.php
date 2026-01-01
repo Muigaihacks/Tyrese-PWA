@@ -17,10 +17,12 @@ return new class extends Migration
             $table->text('notes')->nullable()->after('quantity');
         });
 
-        // Update the enum to include 'asset' - PostgreSQL compatible
-        DB::statement("ALTER TABLE inventories DROP CONSTRAINT IF EXISTS inventories_item_type_check");
-        DB::statement("ALTER TABLE inventories ALTER COLUMN item_type TYPE VARCHAR(20)");
-        DB::statement("ALTER TABLE inventories ADD CONSTRAINT inventories_item_type_check CHECK (item_type IN ('tool', 'spare_part', 'asset'))");
+        // Update the enum to include 'asset' - PostgreSQL only
+        if (DB::getDriverName() === 'pgsql') {
+            DB::statement("ALTER TABLE inventories DROP CONSTRAINT IF EXISTS inventories_item_type_check");
+            DB::statement("ALTER TABLE inventories ALTER COLUMN item_type TYPE VARCHAR(20)");
+            DB::statement("ALTER TABLE inventories ADD CONSTRAINT inventories_item_type_check CHECK (item_type IN ('tool', 'spare_part', 'asset'))");
+        }
     }
 
     /**
@@ -33,8 +35,10 @@ return new class extends Migration
             $table->dropColumn('notes');
         });
 
-        // Revert enum back to original values
-        DB::statement("ALTER TABLE inventories DROP CONSTRAINT IF EXISTS inventories_item_type_check");
-        DB::statement("ALTER TABLE inventories ADD CONSTRAINT inventories_item_type_check CHECK (item_type IN ('tool', 'spare_part'))");
+        // Revert enum back to original values (PostgreSQL only)
+        if (DB::getDriverName() === 'pgsql') {
+            DB::statement("ALTER TABLE inventories DROP CONSTRAINT IF EXISTS inventories_item_type_check");
+            DB::statement("ALTER TABLE inventories ADD CONSTRAINT inventories_item_type_check CHECK (item_type IN ('tool', 'spare_part'))");
+        }
     }
 };
