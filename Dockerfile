@@ -39,17 +39,18 @@ RUN npm install && npm run build
 RUN mkdir -p storage/framework/{sessions,views,cache,testing} storage/logs bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
 
-# Cache Laravel config and routes (skip view cache as it requires full app context)
-RUN php artisan config:cache \
-    && php artisan route:cache \
-    || true
+# Don't cache config/routes during build (env vars not available yet)
+# Cache will happen at runtime after migrations
 
 # Expose port (Railway sets PORT dynamically)
 EXPOSE 8000
 
 # Start command (uses Railway's PORT environment variable)
-CMD php artisan migrate --force || true && \
+CMD php artisan config:clear && \
+    php artisan migrate --force || true && \
     php artisan db:seed --class=RoleSeeder --force || true && \
     php artisan admin:create-from-env && \
+    php artisan config:cache && \
+    php artisan route:cache && \
     php artisan serve --host=0.0.0.0 --port=$PORT
 
