@@ -27,8 +27,11 @@ return new class extends Migration
             $table->foreign('to_unit_id')->references('id')->on('leased_units')->onDelete('set null');
         });
         
-        // Update existing action_type values to include new options (PostgreSQL compatible)
-        DB::statement("ALTER TABLE inventory_actions ALTER COLUMN action_type TYPE VARCHAR(255)");
+        // Update existing action_type values to include new options (database-agnostic)
+        // Only run if using PostgreSQL (this SQL is PostgreSQL-specific)
+        if (DB::getDriverName() === 'pgsql') {
+            DB::statement("ALTER TABLE inventory_actions ALTER COLUMN action_type TYPE VARCHAR(255)");
+        }
     }
 
     /**
@@ -53,7 +56,9 @@ return new class extends Migration
             $table->dropColumn(['items_data', 'battery_condition_before', 'battery_condition_after', 'from_unit_id', 'to_unit_id']);
         });
         
-        // Revert action_type to original values
-        DB::statement("ALTER TABLE inventory_actions ALTER COLUMN action_type TYPE VARCHAR(255)");
+        // Revert action_type to original values (PostgreSQL only)
+        if (DB::getDriverName() === 'pgsql') {
+            DB::statement("ALTER TABLE inventory_actions ALTER COLUMN action_type TYPE VARCHAR(255)");
+        }
     }
 };
