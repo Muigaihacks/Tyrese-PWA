@@ -51,6 +51,7 @@ CMD php artisan config:clear && \
     php artisan migrate --force || true && \
     php artisan db:seed --class=RoleSeeder --force || true && \
     php artisan admin:create-from-env && \
+    php artisan shield:generate --all || true && \
     php artisan config:cache && \
     php artisan route:cache && \
     php artisan storage:link || true && \
