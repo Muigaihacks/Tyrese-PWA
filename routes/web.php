@@ -51,13 +51,20 @@ Route::get('/debug-roles', function (Request $request) {
     }
 
     $user = Auth::user();
+    $superAdminRole = \Spatie\Permission\Models\Role::where('name', 'super_admin')->where('guard_name', 'web')->first();
+    $rolePermissions = $superAdminRole ? $superAdminRole->permissions->pluck('name')->toArray() : [];
+    
     return response()->json([
         'user_id' => $user->id,
         'user_email' => $user->email,
         'user_role' => $user->role,
         'has_admin_role' => $user->hasRole('admin'),
+        'has_super_admin_role' => $user->hasRole('super_admin'),
         'all_roles' => $user->roles->pluck('name')->toArray(),
         'all_permissions' => $user->getAllPermissions()->pluck('name')->toArray(),
+        'super_admin_role_permissions_count' => $superAdminRole ? $superAdminRole->permissions->count() : 0,
+        'super_admin_role_permissions_sample' => array_slice($rolePermissions, 0, 10),
+        'can_access_filament' => \Illuminate\Support\Facades\Gate::allows('viewAny', \App\Models\User::class),
         'timestamp' => now()->toDateTimeString()
     ]);
 });
