@@ -6,6 +6,17 @@ use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 
+// Debug route to check if app is working
+Route::get('/debug-app', function () {
+    return response()->json([
+        'status' => 'ok',
+        'vite_manifest_exists' => file_exists(public_path('build/manifest.json')),
+        'build_dir_exists' => is_dir(public_path('build')),
+        'app_env' => env('APP_ENV'),
+        'app_debug' => env('APP_DEBUG'),
+    ]);
+});
+
 // Debug route to check authentication status
 Route::get('/debug-auth', function (Request $request) {
     return response()->json([
