@@ -8,13 +8,23 @@ use Illuminate\Support\Facades\Auth;
 
 // Debug route to check if app is working
 Route::get('/debug-app', function () {
+    $manifestPath = public_path('build/manifest.json');
+    $manifestContent = file_exists($manifestPath) ? json_decode(file_get_contents($manifestPath), true) : null;
+    
     return response()->json([
         'status' => 'ok',
-        'vite_manifest_exists' => file_exists(public_path('build/manifest.json')),
+        'vite_manifest_exists' => file_exists($manifestPath),
         'build_dir_exists' => is_dir(public_path('build')),
         'app_env' => env('APP_ENV'),
         'app_debug' => env('APP_DEBUG'),
+        'manifest_has_resources' => $manifestContent ? isset($manifestContent['resources/js/main.jsx']) : false,
+        'build_assets_dir' => is_dir(public_path('build/assets')) ? 'exists' : 'missing',
     ]);
+});
+
+// Debug route to see rendered view HTML
+Route::get('/debug-view', function () {
+    return view('app');
 });
 
 // Debug route to check authentication status
