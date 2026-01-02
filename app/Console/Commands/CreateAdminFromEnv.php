@@ -34,21 +34,24 @@ class CreateAdminFromEnv extends Command
         $adminPassword = env('ADMIN_PASSWORD', 'demo123');
         $adminRole = env('ADMIN_ROLE', 'admin');
 
+        // Ensure super_admin role exists first
+        Role::firstOrCreate(['name' => 'super_admin', 'guard_name' => 'web']);
+        Role::firstOrCreate(['name' => 'super_admin', 'guard_name' => 'sanctum']);
+        
         // Check if user already exists
         $existingUser = User::where('email', $adminEmail)->first();
         if ($existingUser) {
-            // Ensure super_admin role exists
-            Role::firstOrCreate(['name' => 'super_admin', 'guard_name' => 'web']);
-            Role::firstOrCreate(['name' => 'super_admin', 'guard_name' => 'sanctum']);
-            
-            // Assign super_admin role if user doesn't have it
+            // Always update existing user to have super_admin role
             $superAdminRole = Role::where('name', 'super_admin')->where('guard_name', 'web')->first();
-            if ($superAdminRole && !$existingUser->hasRole('super_admin')) {
+            if ($superAdminRole) {
+                // Remove all existing roles
+                $existingUser->roles()->detach();
+                // Assign super_admin role
                 $existingUser->assignRole($superAdminRole);
                 $existingUser->update(['role' => 'super_admin']);
+                $existingUser->refresh();
                 $this->info("✅ Updated existing user with super_admin role!");
-            } else {
-                $this->info("User with email '{$adminEmail}' already exists with correct role.");
+                $this->info("User now has roles: " . implode(', ', $existingUser->roles->pluck('name')->toArray()));
             }
             return 0;
         }
