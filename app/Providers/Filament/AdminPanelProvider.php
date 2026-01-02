@@ -66,10 +66,6 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ])
-            ->authGuard('web')
-            ->canAccess(function ($user) {
-                // Allow super_admin and admin roles to access the panel
-                return $user->hasRole(['super_admin', 'admin']);
-            });
+            ->authGuard('web');
     }
 }
