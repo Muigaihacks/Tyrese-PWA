@@ -48,7 +48,6 @@ EXPOSE 8000
 
 # Start command (uses Railway's PORT environment variable)
 CMD php artisan config:clear && \
-    php artisan key:generate --force || true && \
     php artisan migrate --force || true && \
     php artisan db:seed --class=RoleSeeder --force || true && \
     php artisan admin:create-from-env && \
