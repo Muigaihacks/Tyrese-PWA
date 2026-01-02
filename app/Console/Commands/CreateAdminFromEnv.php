@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Role;
 
 class CreateAdminFromEnv extends Command
 {
@@ -48,15 +49,25 @@ class CreateAdminFromEnv extends Command
                 $this->warn("Note: Could not run RoleSeeder (roles may already exist): " . $e->getMessage());
             }
 
+            // Ensure super_admin role exists (required for Filament full access)
+            Role::firstOrCreate(['name' => 'super_admin', 'guard_name' => 'web']);
+            Role::firstOrCreate(['name' => 'super_admin', 'guard_name' => 'sanctum']);
+
             // Create the admin user
             $user = User::create([
                 'name' => $adminName,
                 'email' => $adminEmail,
                 'password' => Hash::make($adminPassword),
-                'role' => $adminRole,
+                'role' => 'super_admin', // Use super_admin for full Filament access
                 'status' => true,
                 'email_verified_at' => now(),
             ]);
+
+            // Assign super_admin role (required for Filament permissions)
+            $superAdminRole = Role::where('name', 'super_admin')->where('guard_name', 'web')->first();
+            if ($superAdminRole) {
+                $user->assignRole($superAdminRole);
+            }
 
             $this->info("✅ Successfully created admin user!");
             $this->info("Name: {$user->name}");
