@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
 
 class CreateAdminFromEnv extends Command
 {
@@ -48,10 +49,14 @@ class CreateAdminFromEnv extends Command
                 $existingUser->roles()->detach();
                 // Assign super_admin role
                 $existingUser->assignRole($superAdminRole);
+                // Give super_admin all permissions
+                $allPermissions = Permission::where('guard_name', 'web')->get();
+                $superAdminRole->syncPermissions($allPermissions);
                 $existingUser->update(['role' => 'super_admin']);
                 $existingUser->refresh();
-                $this->info("✅ Updated existing user with super_admin role!");
+                $this->info("✅ Updated existing user with super_admin role and all permissions!");
                 $this->info("User now has roles: " . implode(', ', $existingUser->roles->pluck('name')->toArray()));
+                $this->info("Role now has " . $allPermissions->count() . " permissions");
             }
             return 0;
         }
@@ -83,6 +88,9 @@ class CreateAdminFromEnv extends Command
             $superAdminRole = Role::where('name', 'super_admin')->where('guard_name', 'web')->first();
             if ($superAdminRole) {
                 $user->assignRole($superAdminRole);
+                // Give super_admin all permissions
+                $allPermissions = Permission::where('guard_name', 'web')->get();
+                $superAdminRole->syncPermissions($allPermissions);
             }
 
             $this->info("✅ Successfully created admin user!");
