@@ -35,8 +35,21 @@ class CreateAdminFromEnv extends Command
         $adminRole = env('ADMIN_ROLE', 'admin');
 
         // Check if user already exists
-        if (User::where('email', $adminEmail)->exists()) {
-            $this->info("User with email '{$adminEmail}' already exists. Skipping creation.");
+        $existingUser = User::where('email', $adminEmail)->first();
+        if ($existingUser) {
+            // Ensure super_admin role exists
+            Role::firstOrCreate(['name' => 'super_admin', 'guard_name' => 'web']);
+            Role::firstOrCreate(['name' => 'super_admin', 'guard_name' => 'sanctum']);
+            
+            // Assign super_admin role if user doesn't have it
+            $superAdminRole = Role::where('name', 'super_admin')->where('guard_name', 'web')->first();
+            if ($superAdminRole && !$existingUser->hasRole('super_admin')) {
+                $existingUser->assignRole($superAdminRole);
+                $existingUser->update(['role' => 'super_admin']);
+                $this->info("✅ Updated existing user with super_admin role!");
+            } else {
+                $this->info("User with email '{$adminEmail}' already exists with correct role.");
+            }
             return 0;
         }
 
