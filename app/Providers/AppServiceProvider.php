@@ -6,6 +6,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Auth\Notifications\ResetPassword;
@@ -25,6 +26,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Force HTTPS URLs in production (Railway uses HTTPS)
+        if (config('app.env') === 'production') {
+            URL::forceScheme('https');
+        }
+        
         // Super admin should never lose visibility/access to Filament modules due to missing permissions.
         // This also fixes cases where policies exist but permissions have not been generated/seeded yet.
         Gate::before(function ($user) {
