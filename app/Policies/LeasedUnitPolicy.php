@@ -9,13 +9,13 @@ class LeasedUnitPolicy
 {
     public function viewAny(User $user)
     {
-        if ($user->hasRole('admin')) {
+        if ($user->hasRole(['admin', 'super_admin'])) {
             return true;
         }
         return $user->can('map.view');
     }
-    public function view(User $user, LeasedUnit $leasedUnit) { return $user->hasRole('admin'); }
-    public function create(User $user)     { return $user->hasRole('admin'); }
-    public function update(User $user, LeasedUnit $leasedUnit) { return $user->hasRole('admin'); }
-    public function delete(User $user, LeasedUnit $leasedUnit) { return $user->hasRole('admin'); }
+    public function view(User $user, LeasedUnit $leasedUnit) { return $user->hasRole(['admin', 'super_admin']); }
+    public function create(User $user)     { return $user->hasRole(['admin', 'super_admin']); }
+    public function update(User $user, LeasedUnit $leasedUnit) { return $user->hasRole(['admin', 'super_admin']); }
+    public function delete(User $user, LeasedUnit $leasedUnit) { return $user->hasRole(['admin', 'super_admin']); }
 } 

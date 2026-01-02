@@ -9,7 +9,7 @@ class InventoryPolicy
 {
     public function viewAny(User $user)
     {
-        if ($user->hasRole('admin')) {
+        if ($user->hasRole(['admin', 'super_admin'])) {
             return true;
         }
         return $user->can('view inventory');
