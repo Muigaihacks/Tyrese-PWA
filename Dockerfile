@@ -33,7 +33,8 @@ COPY . .
 RUN composer install --optimize-autoloader --no-dev --no-scripts --no-interaction
 
 # Install Node dependencies and build
-RUN npm install && npm run build
+# Set APP_ENV=production for Vite to build production assets
+RUN APP_ENV=production npm install && npm run build
 
 # Set permissions
 RUN mkdir -p storage/framework/{sessions,views,cache,testing} storage/logs bootstrap/cache \
